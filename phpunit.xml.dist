@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<phpunit
+        colors="true"
+        bootstrap="vendor/autoload.php"
+>
+    <testsuites>
+        <testsuite name="Driver test suite">
+            <directory>tests</directory>
+            <directory>vendor/mink/driver-testsuite/tests</directory>
+        </testsuite>
+    </testsuites>
+
+    <php>
+        <var name="driver_config_factory" value="OAndreyev\Mink\Tests\Driver\WebDriverConfig::getInstance" />
+
+        <!-- Docker for Mac, see https://docs.docker.com/docker-for-mac/networking/#there-is-no-docker0-bridge-on-macos#i-want-to-connect-from-a-container-to-a-service-on-the-host -->
+        <!--<server name="WEB_FIXTURES_HOST" value="http://host.docker.internal:8002"/>-->
+        <!-- See default value in \Behat\Mink\Tests\Driver\AbstractConfig::getWebFixturesUrl -->
+        <!--<server name="WEB_FIXTURES_HOST" value="http://localhost:8002"/>-->
+
+        <!--<env name="BROWSER_NAME" value="htmlunit"/>-->
+
+        <!--<env name="BROWSER_NAME" value="chrome"/>-->
+        <!--<env name="DRIVER_OPTIONS" value='{"args":["headless", "no-sandbox","window-size=1024,768"]}'/>-->
+
+        <!--<env name="BROWSER_NAME" value="firefox"/>-->
+        <!--<env name="DRIVER_OPTIONS" value='{"preference": {"general.useragent.override": "x"}}'/>-->
+
+        <!-- where driver will connect to -->
+        <server name="DRIVER_URL" value="http://localhost:4444/wd/hub" />
+
+        <!-- where DocumentRoot of 'Test Machine' is mounted to on 'Driver Machine' (only if these are 2 different machines) -->
+        <!--server name="DRIVER_MACHINE_BASE_PATH" value="" /-->
+        <!--server name="TEST_MACHINE_BASE_PATH" value="" /-->
+
+        <!--<env name="DRIVER_OPTIONS" value='{}'/>-->
+    </php>
+
+    <filter>
+        <whitelist>
+            <directory>./src</directory>
+        </whitelist>
+    </filter>
+</phpunit>
