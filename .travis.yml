@@ -58,6 +58,7 @@ install:
   - travis_retry composer update --no-interaction $COMPOSER_FLAGS
 
 before_script:
+  - chmod +x ./.build/before_script.sh
   - ./.build/before_script.sh
 
 script:
