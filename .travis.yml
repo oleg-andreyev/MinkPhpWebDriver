@@ -49,6 +49,10 @@ matrix:
     - php: 7.2
       env:
         - CHROMEDRIVER_VERSION="latest"
+    # build with latest geckodriver
+    - php: 7.2
+      env:
+        - GECKODRIVER_VERSION="latest"
 
 install:
   - travis_retry composer update --no-interaction $COMPOSER_FLAGS
@@ -64,6 +68,6 @@ after_script:
   - php ocular.phar code-coverage:upload --format=php-clover coverage.clover
 
 after_failure:
-  - if [ -f ./logs/chromedriver.log ]; then cat ./logs/chromedriver.log; fi
+  - if [ -f ./logs/webdriver.log ]; then cat ./logs/webdriver.log; fi
   - if [ -f ./logs/selenium.log ]; then cat ./logs/selenium.log; fi
   - if [ -f ./logs/mink-test-server.log ]; then cat ./logs/mink-test-server.log; fi
