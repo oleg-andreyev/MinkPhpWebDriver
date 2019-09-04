@@ -1,0 +1,81 @@
+language: php
+sudo: false
+dist: trusty
+
+services:
+  - docker
+
+addons:
+  chrome: stable
+  firefox: latest
+
+php:
+  - 5.6
+  - 7.0
+  - 7.1
+  - 7.2
+  - 7.3
+
+env:
+  global:
+    - DISPLAY=:99.0
+    - BROWSER_NAME="chrome"
+    - DRIVER_OPTIONS='{"args":["headless", "no-sandbox","window-size=1024,768"]}'
+    - CHROMEDRIVER_VERSION="2.38"
+    - START_XVFB="0"
+    - SELENIUM_DRIVER=""
+
+cache:
+  directories:
+    - $HOME/.composer/cache/files
+    - jar
+
+matrix:
+  include:
+    - php: 7.0
+      env:
+        - SELENIUM_DRIVER="2.53.1"
+        - BROWSER_NAME="firefox"
+    # XVFB with regular Chrome (not headless)
+    - php: 7.2
+      env:
+        - DRIVER_OPTIONS='{"args":["no-sandbox","window-size=1024,768"]}'
+        - START_XVFB=1
+    # build with lowest deps
+    - php: 7.2
+      env:
+        - COMPOSER_FLAGS="--prefer-lowest"
+    # build with latest chromedriver
+    - php: 7.2
+      env:
+        - CHROMEDRIVER_VERSION="latest"
+
+install:
+  - travis_retry composer update --no-interaction $COMPOSER_FLAGS
+
+before_script:
+  - mkdir ./logs
+  - if [[ "$BROWSER_NAME" = "chrome" && "$CHROMEDRIVER_VERSION" = "latest" ]]; then CHROMEDRIVER_VERSION=`curl -sS chromedriver.storage.googleapis.com/LATEST_RELEASE`; fi
+  - if [ "$BROWSER_NAME" = "chrome" ]; then mkdir chromedriver; wget -q -t 3 https://chromedriver.storage.googleapis.com/$CHROMEDRIVER_VERSION/chromedriver_linux64.zip; unzip chromedriver_linux64 -d chromedriver; fi
+  - if [ "$START_XVFB" = "1" ]; then sh -e /etc/init.d/xvfb start; fi;
+  - |
+    if [ -z "$SELENIUM_DRIVER" ]; then
+      ./chromedriver/chromedriver --port=4444 --url-base=wd/hub --verbose &> ./logs/chromedriver.log &
+    else
+      docker run --rm --network=host -p 4444:4444 "selenium/standalone-firefox:$SELENIUM_DRIVER" &> ./logs/selenium.log &
+    fi;
+  - until $(echo | nc localhost 4444); do sleep 1; echo Waiting for WebDriver on port 4444...; done; echo "ChromeDriver started"
+  - travis_retry ./vendor/bin/mink-test-server &> ./logs/mink-test-server.log &
+  - until $(echo | nc localhost 8002); do sleep 1; echo waiting for PHP server on port 8002...; done; echo "PHP server started"
+
+script:
+  - phpunit -v --coverage-clover=coverage.clover
+
+after_script:
+  - wget https://scrutinizer-ci.com/ocular.phar
+  - php ocular.phar code-coverage:upload --format=php-clover coverage.clover
+
+after_failure:
+  - if [ -f ./logs/chromedriver.log ]; then cat ./logs/chromedriver.log; fi
+  - if [ -f ./logs/selenium.log ]; then cat ./logs/selenium.log; fi
+  - if [ -f ./logs/mink-test-server.log ]; then cat ./logs/mink-test-server.log; fi

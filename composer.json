@@ -1,0 +1,49 @@
+{
+    "name":         "oleg-andreyev/mink-webdriver",
+    "description":  "WebDriver driver for Mink framework",
+    "keywords":     ["webdriver", "javascript", "ajax", "testing", "browser"],
+    "type":         "mink-driver",
+    "license":      "MIT",
+
+    "authors": [
+        {
+            "name":      "Oleg Andreyev",
+            "email":     "oleg@andreyev.lv"
+        }
+    ],
+    "repositories": [
+        {
+            "type": "vcs",
+            "url": "https://github.com/oleg-andreyev/driver-testsuite.git",
+            "no-api": true
+        },
+        {
+            "type": "vcs",
+            "url": "https://github.com/oleg-andreyev/php-webdriver.git",
+            "no-api": true
+        }
+    ],
+    "require": {
+        "php":                ">=5.6",
+        "behat/mink":         "~1.7@dev",
+        "facebook/webdriver": "dev-integration-branch"
+    },
+    "require-dev": {
+        "mink/driver-testsuite": "dev-integration-branch"
+    },
+    "autoload": {
+        "psr-4": {
+            "OAndreyev\\Mink\\Driver\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "OAndreyev\\Mink\\Tests\\Driver\\": "tests"
+        }
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-master": "1.0.x-dev"
+        }
+    }
+}
