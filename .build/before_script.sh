@@ -22,8 +22,30 @@ else
   docker run --rm --network=host -p 4444:4444 "selenium/standalone-firefox:$SELENIUM_DRIVER" &> ./logs/selenium.log &
 fi;
 
-until $(echo | nc localhost 4444); do sleep 1; echo "Waiting for $BROWSER_NAME driver on port 4444..."; done; echo "$BROWSER_NAME driver started"
+ATTEMPT=0
+until $(echo | nc localhost 4444); do
+    if [ $ATTEMPT -gt 5 ]; then
+        echo "Failed to start $BROWSER_NAME driver"
+        cat ./logs/webdriver.log
+        exit 1;
+    fi;
+    sleep 1;
+    echo "Waiting for $BROWSER_NAME driver on port 4444...";
+    ATTEMPT=$ATTEMPT+1
+done;
+echo "$BROWSER_NAME driver started"
 
 travis_retry ./vendor/bin/mink-test-server &> ./logs/mink-test-server.log &
 
-until $(echo | nc localhost 8002); do sleep 1; echo waiting for PHP server on port 8002...; done; echo "PHP server started"
+ATTEMPT=0
+until $(echo | nc localhost 8002); do
+        if [ $ATTEMPT -gt 5 ]; then
+        echo "Failed to php server driver"
+        cat ./logs/mink-test-server.log
+        exit 1;
+    fi;
+    sleep 1;
+    echo waiting for PHP server on port 8002...;
+    ATTEMPT=$ATTEMPT+1
+done;
+echo "PHP server started"
