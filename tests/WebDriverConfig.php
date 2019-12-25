@@ -3,6 +3,7 @@
 namespace OAndreyev\Mink\Tests\Driver;
 
 use Behat\Mink\Tests\Driver\AbstractConfig;
+use Behat\Mink\Tests\Driver\Js\WindowTest;
 use Facebook\WebDriver\Chrome\ChromeOptions;
 use Facebook\WebDriver\Exception\WebDriverException;
 use Facebook\WebDriver\Firefox\FirefoxDriver;
@@ -70,19 +71,19 @@ class WebDriverConfig extends AbstractConfig
      */
     public function skipMessage($testCase, $test)
     {
-        if (
-            'Behat\Mink\Tests\Driver\Form\Html5Test' === $testCase
-            && 'testHtml5Types' === $test
-        ) {
-            return 'WebDriver does not support setting value in color inputs. See https://code.google.com/p/selenium/issues/detail?id=7650';
-        }
+//        if (
+//            'Behat\Mink\Tests\Driver\Form\Html5Test' === $testCase
+//            && 'testHtml5Types' === $test
+//        ) {
+//            return 'WebDriver does not support setting value in color inputs. See https://code.google.com/p/selenium/issues/detail?id=7650';
+//        }
 
         $desiredCapabilities = $this->driver->getDesiredCapabilities();
         $chromeOptions = $desiredCapabilities->getCapability(ChromeOptions::CAPABILITY);
 
         $headless = $desiredCapabilities->getBrowserName() === 'chrome'
             && $chromeOptions instanceof ChromeOptions
-            && in_array('headless', $chromeOptions->toArray()['args'], true);
+            && in_array('headless', $chromeOptions->toArray()['args'] ?? [], true);
 
         if (
             'Behat\Mink\Tests\Driver\Js\WindowTest' === $testCase
@@ -125,7 +126,10 @@ class WebDriverConfig extends AbstractConfig
         if (!$capability) {
             $capability = new ChromeOptions();
         }
-        $args = isset($driverOptions['args']) ? $driverOptions['args'] : [];
+        $binary = $driverOptions['binary'] ?? null;
+        $capability->setBinary($binary);
+
+        $args = $driverOptions['args'] ?? [];
         $capability->addArguments($args);
         return $capability;
 

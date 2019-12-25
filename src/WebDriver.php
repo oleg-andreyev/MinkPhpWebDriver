@@ -14,6 +14,7 @@ use Behat\Mink\Driver\CoreDriver;
 use Behat\Mink\Exception\DriverException;
 use Behat\Mink\Exception\UnsupportedDriverActionException;
 use Facebook\WebDriver\Cookie;
+use Facebook\WebDriver\Exception\NoSuchCookieException;
 use Facebook\WebDriver\Exception\NoSuchElementException;
 use Facebook\WebDriver\Exception\ScriptTimeoutException;
 use Facebook\WebDriver\Exception\TimeOutException;
@@ -227,10 +228,10 @@ class WebDriver extends CoreDriver
         $script = str_replace('{{ELEMENT}}', 'arguments[0]', $script);
 
         if ($sync) {
-            return $this->webDriver->executeScript($script, array(array('ELEMENT' => $element->getID())));
+            return $this->webDriver->executeScript($script, [$element]);
         }
 
-        return $this->webDriver->executeAsyncScript($script, array(array('ELEMENT' => $element->getID())));
+        return $this->webDriver->executeAsyncScript($script, [$element]);
     }
 
     /**
@@ -238,6 +239,10 @@ class WebDriver extends CoreDriver
      */
     public function start()
     {
+        if ($this->webDriver) {
+            return $this->webDriver;
+        }
+
         try {
             $this->webDriver = RemoteWebDriver::create($this->wdHost, $this->desiredCapabilities);
             if (\count($this->timeouts)) {
@@ -388,8 +393,9 @@ class WebDriver extends CoreDriver
      */
     public function getCookie($name)
     {
-        $cookie = $this->webDriver->manage()->getCookieNamed($name);
-        if (!$cookie) {
+        try {
+            $cookie = $this->webDriver->manage()->getCookieNamed($name);
+        } catch (NoSuchCookieException $e) {
             return null;
         }
 
@@ -599,6 +605,14 @@ class WebDriver extends CoreDriver
 
             if ('file' === $elementType) {
                 $this->attachFile($xpath, $value);
+                return;
+            }
+
+            // WebDriver does not support setting value in color inputs.
+            // Each OS will show native color picker
+            // See https://code.google.com/p/selenium/issues/detail?id=7650
+            if ('color' === $elementType) {
+                $this->executeJsOnElement($element, sprintf('return {{ELEMENT}}.value = "%s"', $value));
                 return;
             }
         }
