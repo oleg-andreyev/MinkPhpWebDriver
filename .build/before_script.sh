@@ -1,10 +1,15 @@
 mkdir ./logs
 
+case "$(uname -s)" in
+    Linux*)     machine=linux;;
+    Darwin*)    machine=mac;;
+esac
+
 if [[ "$BROWSER_NAME" = "chrome" && "$CHROMEDRIVER_VERSION" = "latest" ]]; then CHROMEDRIVER_VERSION=$(curl -sS https://chromedriver.storage.googleapis.com/LATEST_RELEASE); fi
-if [[ "$BROWSER_NAME" = "chrome" ]]; then mkdir chromedriver; wget -q -t 3 "https://chromedriver.storage.googleapis.com/$CHROMEDRIVER_VERSION/chromedriver_linux64.zip"; unzip chromedriver_linux64 -d chromedriver; fi
+if [[ "$BROWSER_NAME" = "chrome" ]]; then mkdir chromedriver; wget -q -t 3 "https://chromedriver.storage.googleapis.com/${CHROMEDRIVER_VERSION}/chromedriver_${machine}64.zip" -O driver.zip; unzip driver.zip -d chromedriver; fi
 
 if [[ "$BROWSER_NAME" = "firefox" && "$GECKODRIVER_VERSION" = "latest" ]]; then  GECKODRIVER_VERSION=$(curl -sS https://api.github.com/repos/mozilla/geckodriver/releases/latest | grep tag_name | cut -d' ' -f4 |  tr -d \" | tr -d ,); fi
-if [[ "$BROWSER_NAME" = "firefox" ]]; then mkdir geckodriver; wget -q -t 3 "https://github.com/mozilla/geckodriver/releases/download/$GECKODRIVER_VERSION/geckodriver-$GECKODRIVER_VERSION-linux64.zip"; unzip "geckodriver-$GECKODRIVER_VERSION-linux64.zip" -d geckodriver; fi
+if [[ "$BROWSER_NAME" = "firefox" ]]; then mkdir geckodriver; wget -q -t 3 "https://github.com/mozilla/geckodriver/releases/download/${GECKODRIVER_VERSION}/geckodriver-$GECKODRIVER_VERSION-${machine}64.zip" -O driver.zip; unzip driver.zip -d geckodriver; fi
 
 
 if [ "$START_XVFB" = "1" ]; then sh -e /etc/init.d/xvfb start; fi;
@@ -17,7 +22,7 @@ else
   docker run --rm --network=host -p 4444:4444 "selenium/standalone-firefox:$SELENIUM_DRIVER" &> ./logs/selenium.log &
 fi;
 
-until $(echo | nc localhost 4444); do sleep 1; echo Waiting for WebDriver on port 4444...; done; echo "ChromeDriver started"
+until $(echo | nc localhost 4444); do sleep 1; echo "Waiting for $BROWSER_NAME driver on port 4444..."; done; echo "$BROWSER_NAME driver started"
 
 travis_retry ./vendor/bin/mink-test-server &> ./logs/mink-test-server.log &
 
