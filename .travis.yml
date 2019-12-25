@@ -10,48 +10,77 @@ addons:
   firefox: latest
 
 php:
-  - 5.6
   - 7.0
   - 7.1
   - 7.2
   - 7.3
+  - 7.4
 
 env:
   global:
     - DISPLAY=:99.0
     - BROWSER_NAME="chrome"
     - DRIVER_OPTIONS='{"args":["headless", "no-sandbox","window-size=1024,768"]}'
-    - CHROMEDRIVER_VERSION="2.38"
+    - CHROMEDRIVER_VERSION="latest"
+    - GECKODRIVER_VERSION="latest"
     - START_XVFB="0"
-    - SELENIUM_DRIVER=""
+    - COMPOSER_FLAGS=""
 
 cache:
   directories:
     - $HOME/.composer/cache/files
-    - jar
 
 matrix:
   include:
-    - php: 7.0
+    - php: 7.3 # XVFB with regular Chrome (not headless)
       env:
-        - SELENIUM_DRIVER="2.53.1"
-        - BROWSER_NAME="firefox"
-    # XVFB with regular Chrome (not headless)
-    - php: 7.2
-      env:
+        - BROWSER_NAME="chrome"
+        - CHROMEDRIVER_VERSION="latest"
         - DRIVER_OPTIONS='{"args":["no-sandbox","window-size=1024,768"]}'
         - START_XVFB=1
-    # build with lowest deps
-    - php: 7.2
+    - php: 7.0 # build with latest chromedriver
       env:
-        - COMPOSER_FLAGS="--prefer-lowest"
-    # build with latest chromedriver
-    - php: 7.2
-      env:
+        - BROWSER_NAME="chrome"
         - CHROMEDRIVER_VERSION="latest"
-    # build with latest geckodriver
-    - php: 7.2
+    - php: 7.0 # build with latest geckodriver
       env:
+        - BROWSER_NAME="firefox"
+        - GECKODRIVER_VERSION="latest"
+
+    - php: 7.1 # build with latest chromedriver
+      env:
+        - BROWSER_NAME="chrome"
+        - CHROMEDRIVER_VERSION="latest"
+    - php: 7.1 # build with latest geckodriver
+      env:
+        - BROWSER_NAME="firefox"
+        - GECKODRIVER_VERSION="latest"
+
+    - php: 7.2 # build with latest chromedriver
+      env:
+        - BROWSER_NAME="chrome"
+        - CHROMEDRIVER_VERSION="latest"
+    - php: 7.2 # build with latest geckodriver
+      env:
+        - BROWSER_NAME="firefox"
+        - GECKODRIVER_VERSION="latest"
+
+    - php: 7.3 # build with latest chromedriver
+      env:
+        - BROWSER_NAME="chrome"
+        - CHROMEDRIVER_VERSION="latest"
+    - php: 7.3 # build with latest geckodriver
+      env:
+        - BROWSER_NAME="firefox"
+        - GECKODRIVER_VERSION="latest"
+
+    - php: 7.4 # build with latest chromedriver
+      env:
+        - BROWSER_NAME="chrome"
+        - CHROMEDRIVER_VERSION="latest"
+    - php: 7.4 # build with latest geckodriver
+      env:
+        - BROWSER_NAME="firefox"
         - GECKODRIVER_VERSION="latest"
 
 install:
