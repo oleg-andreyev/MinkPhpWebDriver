@@ -35,7 +35,7 @@ until $(echo | nc localhost 4444); do
 done;
 echo "$BROWSER_NAME driver started"
 
-travis_retry ./vendor/bin/mink-test-server &> ./logs/mink-test-server.log &
+./vendor/bin/mink-test-server &> ./logs/mink-test-server.log &
 
 ATTEMPT=0
 until $(echo | nc localhost 8002); do
