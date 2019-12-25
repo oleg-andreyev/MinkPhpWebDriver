@@ -31,7 +31,7 @@ until $(echo | nc localhost 4444); do
     fi;
     sleep 1;
     echo "Waiting for $BROWSER_NAME driver on port 4444...";
-    ATTEMPT=$ATTEMPT+1
+    ATTEMPT=$((ATTEMPT + 1))
 done;
 echo "$BROWSER_NAME driver started"
 
@@ -46,6 +46,6 @@ until $(echo | nc localhost 8002); do
     fi;
     sleep 1;
     echo waiting for PHP server on port 8002...;
-    ATTEMPT=$ATTEMPT+1
+    ATTEMPT=$((ATTEMPT + 1))
 done;
 echo "PHP server started"
