@@ -615,6 +615,14 @@ class WebDriver extends CoreDriver
                 $this->executeJsOnElement($element, sprintf('return {{ELEMENT}}.value = "%s"', $value));
                 return;
             }
+
+            // using DateTimeFormat to detect local format
+            // See https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/DateTimeFormat#Syntax
+            if ('date' === $elementType) {
+                $format = $this->getDateTimeFormatForRemoteDriver();
+                $time = strtotime($value);
+                $value = date($format, $time);
+            }
         }
 
         $value = (string) $value;
@@ -1040,5 +1048,51 @@ class WebDriver extends CoreDriver
         }
 
         $action->perform();
+    }
+
+    /**
+     * @return mixed|void
+     * @throws DriverException
+     * @throws UnsupportedDriverActionException
+     */
+    private function getDateTimeFormatForRemoteDriver()
+    {
+        $format = '';
+        $parts = $this->evaluateScript('return (new Intl.DateTimeFormat()).formatToParts(new Date(Date.UTC(2012, 01, 01, 01, 0, 0)))');
+        foreach ($parts as $part) {
+            if ($part['type'] === 'literal') {
+                $format .= $part['value'];
+                continue;
+            }
+
+            if ($part['type'] === 'day') {
+                if (strpos($part['value'], '0') === 0) {
+                    $format .= 'd';
+                } else {
+                    $format .= 'j';
+                }
+                continue;
+            }
+
+            if ($part['type'] === 'month') {
+                if (strpos($part['value'], '0') === 0) {
+                    $format .= 'm';
+                } else {
+                    $format .= 'n';
+                }
+                continue;
+            }
+
+            if ($part['type'] === 'year') {
+                if (strlen($part['value']) === 4) {
+                    $format .= 'Y';
+                } else {
+                    $format .= 'y';
+                }
+                continue;
+            }
+        }
+
+        return $format;
     }
 }
