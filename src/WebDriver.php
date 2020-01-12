@@ -17,6 +17,7 @@ use Facebook\WebDriver\Cookie;
 use Facebook\WebDriver\Exception\NoSuchCookieException;
 use Facebook\WebDriver\Exception\NoSuchElementException;
 use Facebook\WebDriver\Exception\ScriptTimeoutException;
+use Facebook\WebDriver\Exception\StaleElementReferenceException;
 use Facebook\WebDriver\Exception\TimeOutException;
 use Facebook\WebDriver\Remote\DesiredCapabilities;
 use Facebook\WebDriver\Remote\LocalFileDetector;
@@ -67,6 +68,16 @@ class WebDriver extends CoreDriver
      * @var string
      */
     private $wdHost;
+
+    /**
+     * @var string
+     */
+    private $rootWindow;
+
+    /**
+     * @var array<string, string>
+     */
+    private $windows = [];
 
     /**
      * Instantiates the driver.
@@ -248,6 +259,7 @@ class WebDriver extends CoreDriver
             if (\count($this->timeouts)) {
                 $this->applyTimeouts();
             }
+            $this->rootWindow = $this->webDriver->getWindowHandle();
         } catch (\Exception $e) {
             throw new DriverException('Could not open connection: ' . $e->getMessage(), 0, $e);
         }
@@ -296,14 +308,7 @@ class WebDriver extends CoreDriver
     public function visit($url)
     {
         try {
-            try {
-                $this->webDriver->navigate()->to($url);
-            } catch (ScriptTimeoutException $e) {
-                // selenium-firefox:2.53.1 has different exception code 'page load' and ScriptTimeoutException is thrown
-                if (strpos($e->getMessage(), 'Timed out waiting for page load') === 0) {
-                    throw new TimeOutException($e->getMessage(), $e->getResults());
-                }
-            }
+            $this->webDriver->navigate()->to($url);
         } catch (TimeOutException $e) {
             throw new DriverException($e->getMessage(), $e->getCode(), $e);
         }
@@ -323,14 +328,7 @@ class WebDriver extends CoreDriver
     public function reload()
     {
         try {
-            try {
-                $this->webDriver->navigate()->refresh();
-            } catch (ScriptTimeoutException $e) {
-                // selenium-firefox:2.53.1 has different exception code 'page load' and ScriptTimeoutException is thrown
-                if (strpos($e->getMessage(), 'Timed out waiting for page load') === 0) {
-                    throw new TimeOutException($e->getMessage(), $e->getResults());
-                }
-            }
+            $this->webDriver->navigate()->refresh();
         } catch (TimeOutException $e) {
             throw new DriverException($e->getMessage(), $e->getCode(), $e);
         }
@@ -357,6 +355,17 @@ class WebDriver extends CoreDriver
      */
     public function switchToWindow($name = null)
     {
+        if ($this->browserName === 'firefox') {
+            // @see https://github.com/mozilla/geckodriver/issues/149
+            if (null === $name) {
+                $name = $this->rootWindow;
+            } else if ($windowId = array_search($name, $this->windows, true)) {
+                $name = $windowId;
+            }
+            $this->webDriver->switchTo()->window($name);
+            return;
+        }
+
         $this->webDriver->switchTo()->window($name);
     }
 
@@ -732,6 +741,29 @@ class WebDriver extends CoreDriver
     {
         $element = $this->findElement($xpath);
         $this->clickOnElement($element);
+
+        if ($this->browserName === 'firefox') {
+            $handles = array_filter(array_map(function ($v) {
+                if ($v === $this->rootWindow) {
+                    return false;
+                }
+
+                if (array_key_exists($v, $this->windows)) {
+                    return false;
+                }
+
+                $this->switchToWindow($v);
+                $title = $this->evaluateScript('window.name');
+                $this->switchToWindow(null);
+
+                return [$title => $v];
+            }, $this->getWindowNames()));
+
+            if ($handles) {
+                $handles = array_flip(array_merge(...$handles));
+                $this->windows += $handles;
+            }
+        }
     }
 
     private function clickOnElement(WebDriverElement $element)
@@ -1094,5 +1126,13 @@ class WebDriver extends CoreDriver
         }
 
         return $format;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function pressKey($xpath, $char, $modifier = null)
+    {
+        // TODO: Implement pressKey() method.
     }
 }
