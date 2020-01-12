@@ -41,7 +41,7 @@
 <!--        <env name="DRIVER_OPTIONS" value='{"log": {"level":"trace"}, "binary": "/Applications/Firefox Developer Edition.app/Contents/MacOS/firefox-bin"}'/>-->
 
         <!-- where driver will connect to -->
-<!--        <server name="DRIVER_URL" value="http://localhost:4444" />-->
+        <server name="DRIVER_URL" value="http://localhost:4444" />
         <!-- Docker for Mac, see https://docs.docker.com/docker-for-mac/networking/#there-is-no-docker0-bridge-on-macos#i-want-to-connect-from-a-container-to-a-service-on-the-host -->
 <!--        <server name="DRIVER_URL" value="http://host.docker.internal:4444/wd/hub" />-->
 
