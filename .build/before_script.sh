@@ -45,7 +45,7 @@ if [[ "$BROWSER_NAME" = "chrome" ]]; then
     fi;
 
     wget -q -t 3 "https://chromedriver.storage.googleapis.com/${CHROMEDRIVER_VERSION}/chromedriver_${machine}.zip" -O driver.zip;
-    unzip -f driver.zip -d chromedriver;
+    unzip -f driver.zip -d chromedriver/;
 fi
 
 if [[ "$BROWSER_NAME" = "firefox" && "$GECKODRIVER_VERSION" = "latest" ]]; then
@@ -64,7 +64,7 @@ if [[ "$BROWSER_NAME" = "firefox" ]]; then
     fi;
 
     wget -q -t 3 "https://github.com/mozilla/geckodriver/releases/download/${GECKODRIVER_VERSION}/geckodriver-$GECKODRIVER_VERSION-${machine}.tar.gz" -O driver.tar.gz;
-    tar -xf driver.tar.gz -C ./geckodriver;
+    tar -xf driver.tar.gz -C ./geckodriver/;
 fi
 
 

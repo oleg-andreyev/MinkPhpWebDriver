@@ -1,6 +1,6 @@
 language: php
-sudo: false
 dist: trusty
+os: linux
 
 services:
   - docker
@@ -32,7 +32,7 @@ cache:
   directories:
     - $HOME/.composer/cache/files
 
-matrix:
+jobs:
   include:
     - php: 7.3 # XVFB with regular Chrome (not headless)
       env:
