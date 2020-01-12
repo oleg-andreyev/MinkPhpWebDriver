@@ -26,7 +26,7 @@
     "require": {
         "php":                ">=7.0",
         "behat/mink":         "~1.7@dev",
-        "facebook/webdriver": "dev-ChromeOptions-toArray-without-binary"
+        "facebook/webdriver": "dev-binary-must-be-a-string"
     },
     "require-dev": {
         "mink/driver-testsuite": "dev-integration-branch"
