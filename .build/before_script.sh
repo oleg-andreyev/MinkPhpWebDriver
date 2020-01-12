@@ -120,6 +120,6 @@ function cleanup() {
     kill $DRIVER_PROCESS_PID;
 }
 
-trap cleanup EXIT
-
-wait
+#trap cleanup EXIT
+#
+#wait
