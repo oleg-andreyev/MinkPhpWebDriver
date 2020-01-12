@@ -45,7 +45,7 @@ if [[ "$BROWSER_NAME" = "chrome" ]]; then
     fi;
 
     wget -q -t 3 "https://chromedriver.storage.googleapis.com/${CHROMEDRIVER_VERSION}/chromedriver_${machine}.zip" -O driver.zip;
-    unzip -f driver.zip -d chromedriver/;
+    unzip driver.zip -d chromedriver/;
 fi
 
 if [[ "$BROWSER_NAME" = "firefox" && "$GECKODRIVER_VERSION" = "latest" ]]; then
