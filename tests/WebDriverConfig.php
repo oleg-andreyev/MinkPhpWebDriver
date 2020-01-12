@@ -32,6 +32,10 @@ class WebDriverConfig extends AbstractConfig
         $driverOptions = getenv('DRIVER_OPTIONS') ? \json_decode(getenv('DRIVER_OPTIONS'), true) : [];
         $seleniumHost = $_SERVER['DRIVER_URL'];
 
+        if (json_last_error() !== JSON_ERROR_NONE) {
+            throw new \RuntimeException('Failed to parse DRIVER_OPTIONS: ' . json_last_error_msg());
+        }
+
         if ($browser === 'firefox') {
             $desiredCapabilities = DesiredCapabilities::firefox();
         } else {
@@ -44,17 +48,18 @@ class WebDriverConfig extends AbstractConfig
 
         $capabilityMap = [
             'firefox' => FirefoxDriver::PROFILE,
-            'chrome'  => ChromeOptions::CAPABILITY
+            'chrome' => ChromeOptions::CAPABILITY
         ];
 
         if (isset($capabilityMap[$browser])) {
-            $capability = $desiredCapabilities->getCapability($capabilityMap[$browser]);
+            $optionsOrProfile = $desiredCapabilities->getCapability($capabilityMap[$browser]);
             if ($browser === 'chrome') {
-                $capability = $this->buildChromeOptions($capability, $driverOptions);
-            } else {
-                if ($browser === 'firefox') {
-                    $capability = $this->buildFirefoxProfile($capability, $driverOptions);
+                if (!$optionsOrProfile) {
+                    $optionsOrProfile = new ChromeOptions();
                 }
+                $capability = $this->buildChromeOptions($desiredCapabilities, $optionsOrProfile, $driverOptions);
+            } else if ($browser === 'firefox') {
+                $capability = $this->buildFirefoxProfile($desiredCapabilities, $optionsOrProfile, $driverOptions);
             }
 
             $desiredCapabilities->setCapability($capabilityMap[$browser], $capability);
@@ -93,17 +98,6 @@ class WebDriverConfig extends AbstractConfig
             return 'Maximizing the window does not work when running the browser in Xvfb/Headless.';
         }
 
-        if (
-            PHP_OS === 'Darwin'
-            && 'Behat\Mink\Tests\Driver\Js\EventsTest' === $testCase
-            && 0 === strpos($test, 'testKeyboardEvents')
-        ) {
-            // https://bugs.chromium.org/p/chromium/issues/detail?id=13891#c16
-            // Control + <char> will not trigger keypress
-            // Option + <char> will output different results "special char" ©
-            return 'MacOS does not behave same as Windows or Linux';
-        }
-
         return parent::skipMessage($testCase, $test);
     }
 
@@ -117,15 +111,12 @@ class WebDriverConfig extends AbstractConfig
 
     /**
      * @param ChromeOptions|null $capability
-     * @param array              $driverOptions
+     * @param array $driverOptions
      *
      * @return ChromeOptions
      */
-    private function buildChromeOptions($capability, array $driverOptions)
+    private function buildChromeOptions(DesiredCapabilities $desiredCapabilities, ChromeOptions $capability, array $driverOptions)
     {
-        if (!$capability) {
-            $capability = new ChromeOptions();
-        }
         $binary = $driverOptions['binary'] ?? null;
         $capability->setBinary($binary);
 
@@ -141,18 +132,38 @@ class WebDriverConfig extends AbstractConfig
     }
 
     /**
-     * @param       $capability
+     * @param FirefoxProfile $capability
      * @param array $driverOptions
      *
      * @return FirefoxProfile
      * @throws WebDriverException
      */
-    private function buildFirefoxProfile($capability, array $driverOptions)
+    private function buildFirefoxProfile(DesiredCapabilities $desiredCapabilities, FirefoxProfile $capability, array $driverOptions)
     {
-        if (!$capability) {
-            $capability = new FirefoxProfile();
+        if (isset($driverOptions['binary'])) {
+            $firefoxOptions = $desiredCapabilities->getCapability('moz:firefoxOptions');
+            if (empty($firefoxOptions)) {
+                $firefoxOptions = [];
+            }
+            $firefoxOptions = array_merge($firefoxOptions, ['binary' => $driverOptions['binary']]);
+            $desiredCapabilities->setCapability('moz:firefoxOptions', $firefoxOptions);
         }
-
+        if (isset($driverOptions['log'])) {
+            $firefoxOptions = $desiredCapabilities->getCapability('moz:firefoxOptions');
+            if (empty($firefoxOptions)) {
+                $firefoxOptions = [];
+            }
+            $firefoxOptions = array_merge($firefoxOptions, ['log' => $driverOptions['log']]);
+            $desiredCapabilities->setCapability('moz:firefoxOptions', $firefoxOptions);
+        }
+        if (isset($driverOptions['args'])) {
+            $firefoxOptions = $desiredCapabilities->getCapability('moz:firefoxOptions');
+            if (empty($firefoxOptions)) {
+                $firefoxOptions = [];
+            }
+            $firefoxOptions = array_merge($firefoxOptions, ['args' => $driverOptions['args']]);
+            $desiredCapabilities->setCapability('moz:firefoxOptions', $firefoxOptions);
+        }
         $preferences = isset($driverOptions['preference']) ? $driverOptions['preference'] : [];
         foreach ($preferences as $key => $preference) {
             $capability->setPreference($key, $preference);

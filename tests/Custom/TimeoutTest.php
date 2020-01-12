@@ -2,6 +2,7 @@
 
 namespace OAndreyev\Mink\Tests\Driver\Custom;
 
+use Behat\Mink\Exception\DriverException;
 use Behat\Mink\Session;
 use Behat\Mink\Tests\Driver\TestCase;
 use OAndreyev\Mink\Driver\WebDriver;
@@ -14,18 +15,16 @@ class TimeoutTest extends TestCase
     /** @var WebDriver */
     private $driver;
 
-    protected function setUp()
+    protected function doSetUp()
     {
-        parent::setUp();
+        parent::doSetUp();
         $this->session = $this->getSession();
         $this->driver = $this->session->getDriver();
     }
 
-    /**
-     * @expectedException \Behat\Mink\Exception\DriverException
-     */
     public function testInvalidTimeoutSettingThrowsException()
     {
+        $this->expectException(DriverException::class);
         $this->session->start();
         $this->driver->setTimeouts(array('invalid' => 0));
     }
@@ -53,30 +52,24 @@ class TimeoutTest extends TestCase
         $this->assertNotNull($element);
     }
 
-    /**
-     * @expectedException \Behat\Mink\Exception\DriverException
-     */
     public function testPageLoadTimeout()
     {
+        $this->expectException(DriverException::class);
         $this->driver->setTimeouts(array('pageLoad' => 1));
         $this->session->visit($this->pathTo('/page_load.php?sleep=2'));
     }
 
-    /**
-     * @expectedException \Behat\Mink\Exception\DriverException
-     */
     public function testPageReloadTimeout()
     {
+        $this->expectException(DriverException::class);
         $this->session->visit($this->pathTo('/page_load.php?sleep=2'));
         $this->driver->setTimeouts(array('pageLoad' => 1));
         $this->session->reload();
     }
 
-    /**
-     * @expectedException \Behat\Mink\Exception\DriverException
-     */
     public function testScriptTimeout()
     {
+        $this->expectException(DriverException::class);
         $this->driver->setTimeouts(array('script' => 1));
         $this->session->visit($this->pathTo('/js_test.html'));
 

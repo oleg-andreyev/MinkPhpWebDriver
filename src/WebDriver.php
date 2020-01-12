@@ -898,7 +898,7 @@ class WebDriver extends CoreDriver
 
         if (is_string($condition)) {
             $script = "return $condition;";
-            $condition = function (RemoteWebDriver $driver) use ($script) {
+            $condition = static function (RemoteWebDriver $driver) use ($script) {
                 return $driver->executeScript($script);
             };
         }

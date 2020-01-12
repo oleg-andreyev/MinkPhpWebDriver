@@ -2,6 +2,7 @@
 
 namespace OAndreyev\Mink\Tests\Driver\Custom;
 
+use Behat\Mink\Exception\DriverException;
 use Behat\Mink\Tests\Driver\TestCase;
 use Facebook\WebDriver\Remote\DesiredCapabilities;
 use OAndreyev\Mink\Driver\WebDriver;
@@ -10,7 +11,7 @@ class DesiredCapabilitiesTest extends TestCase
 {
     public function testGetDesiredCapabilities()
     {
-        $caps = array(
+        $expectedCaps = array(
             'browserName'       => 'firefox',
             'version'           => '30',
             'platform'          => 'ANY',
@@ -22,18 +23,20 @@ class DesiredCapabilitiesTest extends TestCase
             'selenium-version'  => '2.45.0'
         );
 
-        $driver = new WebDriver('firefox', $caps);
+        $driver = new WebDriver('firefox', $expectedCaps);
         $this->assertNotEmpty($driver->getDesiredCapabilities(), 'desiredCapabilities empty');
         $this->assertInstanceOf(DesiredCapabilities::class, $driver->getDesiredCapabilities());
-        $this->assertArraySubset($caps, $driver->getDesiredCapabilities()->toArray());
+        $toArray = $driver->getDesiredCapabilities()->toArray();
+        foreach ($expectedCaps as $key => $v) {
+            $this->assertEquals($expectedCaps[$key], $toArray[$key]);
+        }
     }
 
-    /**
-     * @expectedException           \Behat\Mink\Exception\DriverException
-     * @expectedExceptionMessage    Unable to set desiredCapabilities, the session has already started
-     */
     public function testSetDesiredCapabilities()
     {
+        $this->expectException(DriverException::class);
+        $this->expectExceptionMessage('Unable to set desiredCapabilities, the session has already started');
+
         $caps = array(
             'browserName'       => 'firefox',
             'version'           => '30',
