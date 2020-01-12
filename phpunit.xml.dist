@@ -1,13 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <phpunit
-        colors="true"
-        bootstrap="vendor/autoload.php"
-        stopOnError="true"
-        stopOnFailure="true"
-        stopOnWarning="true"
-        stopOnIncomplete="true"
-        stopOnRisky="true"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/6.5/phpunit.xsd"
+    backupGlobals="false"
+    backupStaticAttributes="false"
+    colors="true"
+    convertErrorsToExceptions="true"
+    convertNoticesToExceptions="true"
+    convertWarningsToExceptions="true"
+    processIsolation="false"
+    stopOnFailure="false"
+    bootstrap="vendor/autoload.php"
 >
     <testsuites>
         <testsuite name="Driver test suite">
