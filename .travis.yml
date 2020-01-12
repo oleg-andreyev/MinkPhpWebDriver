@@ -26,6 +26,7 @@ env:
     - START_XVFB="1"
     - COMPOSER_FLAGS=""
     - DRIVER_URL=http://localhost:4444
+    - WEB_FIXTURES_HOST=http://localhost:8002
 
 cache:
   directories:
