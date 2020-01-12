@@ -29,7 +29,8 @@
         "facebook/webdriver": "dev-binary-must-be-a-string"
     },
     "require-dev": {
-        "mink/driver-testsuite": "dev-integration-branch"
+        "mink/driver-testsuite": "dev-integration-branch",
+        "behat/mink-extension": "^2.3"
     },
     "autoload": {
         "psr-4": {
