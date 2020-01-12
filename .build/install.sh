@@ -2,4 +2,4 @@
 
 set -ex
 
-travis_retry composer update --no-interaction $COMPOSER_FLAGS
+composer update --no-interaction $COMPOSER_FLAGS
