@@ -16,12 +16,17 @@
             "type": "vcs",
             "url": "https://github.com/oleg-andreyev/driver-testsuite.git",
             "no-api": true
+        },
+        {
+            "type": "vcs",
+            "url": "https://github.com/oleg-andreyev/php-webdriver.git",
+            "no-api": true
         }
     ],
     "require": {
         "php":                ">=7.0",
         "behat/mink":         "~1.7@dev",
-        "facebook/webdriver": "dev-community"
+        "facebook/webdriver": "dev-ChromeOptions-toArray-without-binary"
     },
     "require-dev": {
         "mink/driver-testsuite": "dev-integration-branch"
