@@ -50,20 +50,25 @@ jobs:
         - DRIVER_OPTIONS='{"args":["-headless"]}'
           START_XVFB=0
 
+before_install:
+  - chmod +x ./.build/before_install.sh
+  - ./.build/before_install.sh
+
 install:
-  - travis_retry composer update --no-interaction $COMPOSER_FLAGS
+  - chmod +x ./.build/install.sh
+  - ./.build/install.sh
 
 before_script:
   - chmod +x ./.build/before_script.sh
-  - chmod +x ./.build/script.sh
   - ./.build/before_script.sh
 
 script:
+  - chmod +x ./.build/script.sh
   - ./.build/script.sh
 
-#after_script:
-#  - wget https://scrutinizer-ci.com/ocular.phar
-#  - php ocular.phar code-coverage:upload --format=php-clover coverage.clover
+after_script:
+  - chmod +x ./.build/after_script.sh
+  - ./.build/after_script.sh
 
 after_failure:
   - if [ -f ./logs/webdriver.log ]; then cat ./logs/webdriver.log; fi
