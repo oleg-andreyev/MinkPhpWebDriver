@@ -26,7 +26,7 @@
     "require": {
         "php":                ">=7.0",
         "behat/mink":         "~1.7@dev",
-        "facebook/webdriver": "dev-binary-must-be-a-string"
+        "php-webdriver/webdriver": "1.8.2"
     },
     "require-dev": {
         "mink/driver-testsuite": "dev-integration-branch",
