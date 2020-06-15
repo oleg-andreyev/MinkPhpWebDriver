@@ -773,7 +773,7 @@ class WebDriver extends CoreDriver
 
     private function clickOnElement(WebDriverElement $element)
     {
-        $this->webDriver->action()->click($element)->perform();
+        $element->click();
     }
 
     /**
