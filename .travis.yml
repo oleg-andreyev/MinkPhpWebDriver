@@ -1,9 +1,10 @@
 language: php
-dist: trusty
+dist: xenial
 os: linux
 
 services:
   - docker
+  - xvfb
 
 addons:
   chrome: stable
@@ -23,7 +24,6 @@ env:
     - DRIVER_OPTIONS='{"args":["headless", "no-sandbox","window-size=1024,768"]}'
     - CHROMEDRIVER_VERSION="latest"
     - GECKODRIVER_VERSION="latest"
-    - START_XVFB="1"
     - COMPOSER_FLAGS=""
     - DRIVER_URL=http://localhost:4444
     - WEB_FIXTURES_HOST=http://localhost:8002
@@ -41,17 +41,14 @@ jobs:
       env:
         - BROWSER_NAME="chrome"
         - DRIVER_OPTIONS='{"args":["no-sandbox","window-size=1024,768"]}'
-        - START_XVFB=1
     - php: 7.3 # XVFB with regular Firefox (not headless)
       env:
         - BROWSER_NAME="firefox"
         - DRIVER_OPTIONS='{}'
-          START_XVFB=1
     - php: 7.3 # Headless Firefox
       env:
         - BROWSER_NAME="firefox"
         - DRIVER_OPTIONS='{"args":["-headless"]}'
-          START_XVFB=0
 
 before_install:
   - chmod +x ./.build/before_install.sh

@@ -2,9 +2,6 @@
 
 set -ex
 
-# install xvfb
-sudo apt install xvfb
-
 # removing xdebug
 phpenv config-rm xdebug.ini
 

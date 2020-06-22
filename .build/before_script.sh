@@ -67,11 +67,6 @@ if [[ "$BROWSER_NAME" = "firefox" ]]; then
     tar -xf driver.tar.gz -C ./geckodriver/;
 fi
 
-
-if [ "$START_XVFB" = "1" ]; then
-    sh -e /etc/init.d/xvfb start;
-fi;
-
 if [ "$BROWSER_NAME" = "chrome" ]; then
     ./chromedriver/chromedriver --port=4444 --verbose --whitelisted-ips=  &> ./logs/webdriver.log &
 elif [ "$BROWSER_NAME" = "firefox" ]; then
