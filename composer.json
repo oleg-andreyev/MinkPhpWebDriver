@@ -24,6 +24,7 @@
         "php-webdriver/webdriver": "^1.8"
     },
     "require-dev": {
+        "ext-json": "*",
         "mink/driver-testsuite": "dev-integration-branch",
         "behat/mink-extension": "^2.3"
     },

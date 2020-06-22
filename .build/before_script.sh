@@ -15,17 +15,17 @@ case "$(uname -s)" in
 esac
 
 if [ -z $BROWSER_NAME ]; then
-    echo "Environemnt variable BROWSER_NAME must be defined"
+    echo "Environment variable BROWSER_NAME must be defined"
     exit 1
 fi;
 
 if [[ $BROWSER_NAME == "chrome" && -z $CHROMEDRIVER_VERSION ]]; then
-    echo "Environemnt variable CHROMEDRIVER_VERSION must be defined"
+    echo "Environment variable CHROMEDRIVER_VERSION must be defined"
     exit 1
 fi;
 
 if [[ $BROWSER_NAME == "firefox" && -z $GECKODRIVER_VERSION ]]; then
-    echo "Environemnt variable GECKODRIVER_VERSION must be defined"
+    echo "Environment variable GECKODRIVER_VERSION must be defined"
     exit 1
 fi;
 
@@ -68,14 +68,16 @@ if [[ "$BROWSER_NAME" = "firefox" ]]; then
 fi
 
 
-if [ "$START_XVFB" = "1" ]; then sh -e /etc/init.d/xvfb start; fi;
+if [ "$START_XVFB" = "1" ]; then
+    sh -e /etc/init.d/xvfb start;
+fi;
 
 if [ "$BROWSER_NAME" = "chrome" ]; then
-  ./chromedriver/chromedriver --port=4444 --verbose --whitelisted-ips=  &> ./logs/webdriver.log &
+    ./chromedriver/chromedriver --port=4444 --verbose --whitelisted-ips=  &> ./logs/webdriver.log &
 elif [ "$BROWSER_NAME" = "firefox" ]; then
-  ./geckodriver/geckodriver --host 127.0.0.1 -vv --port 4444 &> ./logs/webdriver.log &
+    ./geckodriver/geckodriver --host 127.0.0.1 -vv --port 4444 &> ./logs/webdriver.log &
 else
-  docker run --rm --network=host -p 4444:4444 "selenium/standalone-firefox:$SELENIUM_DRIVER" &> ./logs/selenium.log &
+    docker run --rm --network=host -p 4444:4444 "selenium/standalone-firefox:$SELENIUM_DRIVER" &> ./logs/selenium.log &
 fi;
 
 DRIVER_PROCESS_PID=$!
@@ -100,7 +102,6 @@ else
 fi;
 
 WEBSERVER_PID=$!
-
 
 ATTEMPT=0
 until $(echo | nc localhost 8002); do
