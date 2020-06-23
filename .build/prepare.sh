@@ -2,8 +2,10 @@
 
 set -ex
 
-# removing xdebug
-phpenv config-rm xdebug.ini
+if [[ $TRAVIS_PHP_VERSION != "nightly" ]]; then
+    # removing xdebug
+    phpenv config-rm xdebug.ini
+fi;
 
 if [[ $TRAVIS_PHP_VERSION = "7.4"* ]]; then
     sudo apt update
