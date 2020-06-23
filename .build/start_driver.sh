@@ -49,7 +49,7 @@ if [[ "$BROWSER_NAME" = "chrome" ]]; then
 fi
 
 if [[ "$BROWSER_NAME" = "firefox" && "$GECKODRIVER_VERSION" = "latest" ]]; then
-    GECKODRIVER_VERSION=$(curl -sS https://api.github.com/repos/mozilla/geckodriver/releases/latest | grep -E -o 'tag_name([^,]+)' | tr -d \" | cut -d':' -f2);
+    GECKODRIVER_VERSION=$(curl -sS https://api.github.com/repos/mozilla/geckodriver/releases/latest | grep -E -o 'tag_name([^,]+)' | tr -d \" | tr -d " " | cut -d':' -f2);
 fi
 
 if [[ "$BROWSER_NAME" = "firefox" ]]; then
