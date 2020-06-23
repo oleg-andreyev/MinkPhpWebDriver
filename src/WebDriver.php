@@ -393,7 +393,7 @@ class WebDriver extends CoreDriver
             return;
         }
 
-        $cookie = new Cookie($name, \urlencode($value));
+        $cookie = new Cookie($name, \rawurlencode($value));
         $this->webDriver->manage()->addCookie($cookie);
     }
 
@@ -408,7 +408,7 @@ class WebDriver extends CoreDriver
             return null;
         }
 
-        return \urldecode($cookie->getValue());
+        return \rawurldecode($cookie->getValue());
     }
 
     /**
