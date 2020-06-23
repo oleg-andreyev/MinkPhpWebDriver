@@ -17,7 +17,6 @@ use Facebook\WebDriver\Cookie;
 use Facebook\WebDriver\Exception\NoSuchCookieException;
 use Facebook\WebDriver\Exception\NoSuchElementException;
 use Facebook\WebDriver\Exception\ScriptTimeoutException;
-use Facebook\WebDriver\Exception\StaleElementReferenceException;
 use Facebook\WebDriver\Exception\TimeOutException;
 use Facebook\WebDriver\Remote\DesiredCapabilities;
 use Facebook\WebDriver\Remote\LocalFileDetector;
@@ -26,8 +25,7 @@ use Facebook\WebDriver\Remote\RemoteWebElement;
 use Facebook\WebDriver\WebDriverBy;
 use Facebook\WebDriver\WebDriverDimension;
 use Facebook\WebDriver\WebDriverElement;
-use Facebook\WebDriver\WebDriverExpectedCondition;
-use Facebook\WebDriver\WebDriverKeys;
+use Facebook\WebDriver\WebDriverKeys as Keys;
 use Facebook\WebDriver\WebDriverRadios;
 use Facebook\WebDriver\WebDriverSelect;
 
@@ -38,6 +36,11 @@ use Facebook\WebDriver\WebDriverSelect;
  */
 class WebDriver extends CoreDriver
 {
+    const MODIFIER_KEYS = [
+        Keys::SHIFT, Keys::CONTROL, Keys::ALT, Keys::META, Keys::COMMAND,
+        Keys::LEFT_ALT, Keys::LEFT_CONTROL, Keys::LEFT_SHIFT
+    ];
+
     /**
      * The WebDriver instance
      *
@@ -393,7 +396,7 @@ class WebDriver extends CoreDriver
             return;
         }
 
-        $cookie = new Cookie($name, \urlencode($value));
+        $cookie = new Cookie($name, \rawurlencode($value));
         $this->webDriver->manage()->addCookie($cookie);
     }
 
@@ -408,7 +411,7 @@ class WebDriver extends CoreDriver
             return null;
         }
 
-        return \urldecode($cookie->getValue());
+        return \rawurldecode($cookie->getValue());
     }
 
     /**
@@ -645,7 +648,7 @@ class WebDriver extends CoreDriver
             $existingValueLength = strlen($element->getAttribute('value'));
             // Add the TAB key to ensure we unfocus the field as browsers are triggering the change event only
             // after leaving the field.
-            $value = str_repeat(WebDriverKeys::BACKSPACE . WebDriverKeys::DELETE, $existingValueLength) . $value;
+            $value = str_repeat(Keys::BACKSPACE . Keys::DELETE, $existingValueLength) . $value;
         }
 
         $element->sendKeys($value);
@@ -656,7 +659,7 @@ class WebDriver extends CoreDriver
         // has lost focus in the meanwhile. If the element has lost focus
         // already then there is nothing to do as this will already have caused
         // the triggering of the change event for that element.
-        $element->sendKeys(WebDriverKeys::TAB);
+        $element->sendKeys(Keys::TAB);
     }
 
     /**
@@ -773,7 +776,12 @@ class WebDriver extends CoreDriver
 
     private function clickOnElement(WebDriverElement $element)
     {
-        $this->webDriver->action()->click($element)->perform();
+        if ($this->browserName === 'firefox') {
+            // TODO: Firefox does not move cursor over an element?
+            $this->webDriver->action()->moveToElement($element)->perform();
+        }
+
+        $element->click();
     }
 
     /**
@@ -858,19 +866,65 @@ class WebDriver extends CoreDriver
     }
 
     /**
-     * {@inheritdoc}
+     * Performs a modifier key press. Does not release the modifier key - subsequent interactions
+     * may assume it's kept pressed.
+     * Note that the modifier key is <b>never</b> released implicitly - either
+     * <i>keyUp(theKey)</i> or <i>sendKeys(Keys.NULL)</i>
+     * must be called to release the modifier.
+     *
+     * @param string $xpath
+     * @param string $key Either {@link Keys::SHIFT}, {@link Keys::ALT} or {@link Keys::CONTROL}.
+     *                    If the provided key is none of those, {@link InvalidArgumentException} is thrown.
+     * @param null $modifier @deprecated
+     *
+     * @throws \InvalidArgumentException
+     *
+     * @return void
      */
-    public function keyDown($xpath, $char, $modifier = null)
+    public function keyDown($xpath, $key, $modifier = null)
     {
-        $this->sendKey($xpath, $char, $modifier);
+        // Own implementation of https://github.com/php-webdriver/php-webdriver/pull/803
+        $element = $this->findElement($xpath);
+
+        $action = $this->webDriver->action();
+        $keyModifier = $this->keyModifier($key);
+
+        if (!in_array($keyModifier, self::MODIFIER_KEYS, true)) {
+            throw new \InvalidArgumentException('Key Down / Up events only make sense for modifier keys.');
+        }
+
+        $action->keyDown($element, $keyModifier);
+        $action->perform();
     }
 
     /**
-     * {@inheritdoc}
+     * Performs a modifier key release. Releasing a non-depressed modifier key will yield undefined
+     * behaviour.
+     *
+     * @param string $xpath
+     * @param string $key Either {@link Keys::SHIFT}, {@link Keys::ALT} or {@link Keys::CONTROL}.
+     *                    If the provided key is none of those, {@link InvalidArgumentException} is thrown.
+     *
+     * @param null $modifier @deprecated
+     *
+     * @throws \InvalidArgumentException
+     *
+     * @return void
      */
-    public function keyUp($xpath, $char, $modifier = null)
+    public function keyUp($xpath, $key, $modifier = null)
     {
-        $this->sendKey($xpath, $char, $modifier);
+        // Own implementation of https://github.com/php-webdriver/php-webdriver/pull/803
+        $element = $this->findElement($xpath);
+
+        $action = $this->webDriver->action();
+        $keyModifier = $this->keyModifier($key);
+
+        if (!in_array($keyModifier, self::MODIFIER_KEYS, true)) {
+            throw new \InvalidArgumentException('Key Down / Up events only make sense for modifier keys.');
+        }
+
+        $action->keyUp($element, $keyModifier);
+        $action->perform();
     }
 
     /**
@@ -1025,7 +1079,7 @@ class WebDriver extends CoreDriver
     }
 
     /**
-     * Converts alt/ctrl/shift/meta to corresponded WebDriverKeys::* constant
+     * Converts alt/ctrl/shift/meta to corresponded Keys::* constant
      *
      * @param string $modifier
      *
@@ -1034,17 +1088,25 @@ class WebDriver extends CoreDriver
     private function keyModifier($modifier)
     {
         if ($modifier === 'alt') {
-            $modifier = WebDriverKeys::ALT;
+            $modifier = Keys::ALT;
+        } else if ($modifier === 'left alt') {
+            $modifier = Keys::LEFT_ALT;
         } else if ($modifier === 'ctrl') {
-            $modifier = WebDriverKeys::CONTROL;
+            $modifier = Keys::CONTROL;
+        } else if ($modifier === 'left ctrl') {
+            $modifier = Keys::LEFT_CONTROL;
         } else if ($modifier === 'shift') {
-            $modifier = WebDriverKeys::SHIFT;
+            $modifier = Keys::SHIFT;
+        } else if ($modifier === 'left shift') {
+            $modifier = Keys::LEFT_SHIFT;
         } else if ($modifier === 'meta') {
-            $modifier = WebDriverKeys::META;
+            $modifier = Keys::META;
+        } else if ($modifier === 'command') {
+            $modifier = Keys::COMMAND;
         }
 
         return $modifier;
-}
+    }
 
     /**
      * Decodes char
@@ -1069,22 +1131,9 @@ class WebDriver extends CoreDriver
      */
     private function sendKey($xpath, $char, $modifier)
     {
-        // @see https://w3c.github.io/uievents/#event-type-keydown
         $element = $this->findElement($xpath);
         $char = $this->decodeChar($char);
-        $action = $this->webDriver->action();
-
-        if ($modifier) {
-            $action->keyDown($element, $this->keyModifier($modifier));
-        }
-
-        $action->sendKeys($element, $char);
-
-        if ($modifier) {
-            $action->keyUp($element, $this->keyModifier($modifier));
-        }
-
-        $action->perform();
+        $element->sendKeys(($modifier ? $this->keyModifier($modifier) : '') . $char);
     }
 
     /**

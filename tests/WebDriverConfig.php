@@ -38,12 +38,10 @@ class WebDriverConfig extends AbstractConfig
 
         if ($browser === 'firefox') {
             $desiredCapabilities = DesiredCapabilities::firefox();
+        } else if ($browser === 'chrome') {
+            $desiredCapabilities = DesiredCapabilities::chrome();
         } else {
-            if ($browser === 'chrome') {
-                $desiredCapabilities = DesiredCapabilities::chrome();
-            } else {
-                $desiredCapabilities = new DesiredCapabilities();
-            }
+            $desiredCapabilities = new DesiredCapabilities();
         }
 
         $capabilityMap = [
@@ -55,7 +53,25 @@ class WebDriverConfig extends AbstractConfig
             $optionsOrProfile = $desiredCapabilities->getCapability($capabilityMap[$browser]);
             if ($browser === 'chrome') {
                 if (!$optionsOrProfile) {
-                    $optionsOrProfile = new ChromeOptions();
+                    $optionsOrProfile = new class extends ChromeOptions {
+                        public function toArray()
+                        {
+                            $result = parent::toArray();
+                            if (empty($result['binary'])) {
+                                unset($result['binary']);
+                            }
+
+                            if (count($result) === 0) {
+                                // The selenium server expects a 'dictionary' instead of a 'list' when
+                                // reading the chrome option. However, an empty array in PHP will be
+                                // converted to a 'list' instead of a 'dictionary'. To fix it, we always
+                                // set the 'binary' to avoid returning an empty array.
+                                $result = new \ArrayObject();
+                            }
+
+                            return $result;
+                        }
+                    };
                 }
                 $capability = $this->buildChromeOptions($desiredCapabilities, $optionsOrProfile, $driverOptions);
             } else if ($browser === 'firefox') {
@@ -84,7 +100,7 @@ class WebDriverConfig extends AbstractConfig
 //        }
 
         $desiredCapabilities = $this->driver->getDesiredCapabilities();
-        $chromeOptions = $desiredCapabilities->getCapability(ChromeOptions::CAPABILITY);
+        $chromeOptions = $desiredCapabilities->getCapability(ChromeOptions::CAPABILITY_W3C);
 
         $headless = $desiredCapabilities->getBrowserName() === 'chrome'
             && $chromeOptions instanceof ChromeOptions

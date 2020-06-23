@@ -15,17 +15,17 @@ case "$(uname -s)" in
 esac
 
 if [ -z $BROWSER_NAME ]; then
-    echo "Environemnt variable BROWSER_NAME must be defined"
+    echo "Environment variable BROWSER_NAME must be defined"
     exit 1
 fi;
 
 if [[ $BROWSER_NAME == "chrome" && -z $CHROMEDRIVER_VERSION ]]; then
-    echo "Environemnt variable CHROMEDRIVER_VERSION must be defined"
+    echo "Environment variable CHROMEDRIVER_VERSION must be defined"
     exit 1
 fi;
 
 if [[ $BROWSER_NAME == "firefox" && -z $GECKODRIVER_VERSION ]]; then
-    echo "Environemnt variable GECKODRIVER_VERSION must be defined"
+    echo "Environment variable GECKODRIVER_VERSION must be defined"
     exit 1
 fi;
 
@@ -49,7 +49,7 @@ if [[ "$BROWSER_NAME" = "chrome" ]]; then
 fi
 
 if [[ "$BROWSER_NAME" = "firefox" && "$GECKODRIVER_VERSION" = "latest" ]]; then
-    GECKODRIVER_VERSION=$(curl -sS https://api.github.com/repos/mozilla/geckodriver/releases/latest | grep tag_name | cut -d' ' -f4 |  tr -d \" | tr -d ,);
+    GECKODRIVER_VERSION=$(curl -sS https://api.github.com/repos/mozilla/geckodriver/releases/latest | grep -E -o 'tag_name([^,]+)' | tr -d \" | tr -d " " | cut -d':' -f2);
 fi
 
 if [[ "$BROWSER_NAME" = "firefox" ]]; then
@@ -67,59 +67,10 @@ if [[ "$BROWSER_NAME" = "firefox" ]]; then
     tar -xf driver.tar.gz -C ./geckodriver/;
 fi
 
-
-if [ "$START_XVFB" = "1" ]; then sh -e /etc/init.d/xvfb start; fi;
-
 if [ "$BROWSER_NAME" = "chrome" ]; then
-  ./chromedriver/chromedriver --port=4444 --verbose --whitelisted-ips=  &> ./logs/webdriver.log &
+    ./chromedriver/chromedriver --port=4444 --verbose --whitelisted-ips=  &> ./logs/webdriver.log &
 elif [ "$BROWSER_NAME" = "firefox" ]; then
-  ./geckodriver/geckodriver --host 127.0.0.1 -vv --port 4444 &> ./logs/webdriver.log &
+    ./geckodriver/geckodriver --host 127.0.0.1 -vv --port 4444 &> ./logs/webdriver.log &
 else
-  docker run --rm --network=host -p 4444:4444 "selenium/standalone-firefox:$SELENIUM_DRIVER" &> ./logs/selenium.log &
+    docker run --rm --network=host -p 4444:4444 "selenium/standalone-firefox:$SELENIUM_DRIVER" &> ./logs/selenium.log &
 fi;
-
-DRIVER_PROCESS_PID=$!
-
-ATTEMPT=0
-until $(echo | nc localhost 4444); do
-    if [ $ATTEMPT -gt 5 ]; then
-        echo "Failed to start $BROWSER_NAME driver"
-        cat ./logs/webdriver.log
-        exit 1;
-    fi;
-    sleep 1;
-    echo "Waiting for $BROWSER_NAME driver on port 4444...";
-    ATTEMPT=$((ATTEMPT + 1))
-done;
-echo "$BROWSER_NAME driver started"
-
-if [ "$machine" = "linux" ]; then
-    ./vendor/bin/mink-test-server &> ./logs/mink-test-server.log &
-else
-    php -S localhost:8002 -t ./vendor/mink/driver-testsuite/web-fixtures &> ./logs/mink-test-server.log &
-fi;
-
-WEBSERVER_PID=$!
-
-
-ATTEMPT=0
-until $(echo | nc localhost 8002); do
-        if [ $ATTEMPT -gt 5 ]; then
-        echo "Failed to php server driver"
-        cat ./logs/mink-test-server.log
-        exit 1;
-    fi;
-    sleep 1;
-    echo waiting for PHP server on port 8002...;
-    ATTEMPT=$((ATTEMPT + 1))
-done;
-echo "PHP server started"
-
-function cleanup() {
-    kill $WEBSERVER_PID;
-    kill $DRIVER_PROCESS_PID;
-}
-
-#trap cleanup EXIT
-#
-#wait
