@@ -17,7 +17,6 @@ use Facebook\WebDriver\Cookie;
 use Facebook\WebDriver\Exception\NoSuchCookieException;
 use Facebook\WebDriver\Exception\NoSuchElementException;
 use Facebook\WebDriver\Exception\ScriptTimeoutException;
-use Facebook\WebDriver\Exception\StaleElementReferenceException;
 use Facebook\WebDriver\Exception\TimeOutException;
 use Facebook\WebDriver\Remote\DesiredCapabilities;
 use Facebook\WebDriver\Remote\LocalFileDetector;
@@ -26,7 +25,6 @@ use Facebook\WebDriver\Remote\RemoteWebElement;
 use Facebook\WebDriver\WebDriverBy;
 use Facebook\WebDriver\WebDriverDimension;
 use Facebook\WebDriver\WebDriverElement;
-use Facebook\WebDriver\WebDriverExpectedCondition;
 use Facebook\WebDriver\WebDriverKeys;
 use Facebook\WebDriver\WebDriverRadios;
 use Facebook\WebDriver\WebDriverSelect;
@@ -773,6 +771,11 @@ class WebDriver extends CoreDriver
 
     private function clickOnElement(WebDriverElement $element)
     {
+        if ($this->browserName === 'firefox') {
+            // TODO: Firefox does not move cursor over an element?
+            $this->webDriver->action()->moveToElement($element)->perform();
+        }
+
         $element->click();
     }
 
