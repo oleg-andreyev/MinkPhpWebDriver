@@ -16,6 +16,7 @@ php:
   - 7.2
   - 7.3
   - 7.4
+  - nightly
 
 env:
   global:
@@ -33,8 +34,8 @@ cache:
     - $HOME/.composer/cache/files
 
 jobs:
-  allow_failures: # travis has broken 7.4 image
-    - php: 7.4
+  allow_failures:
+    - php: nightly
 
   include:
     - php: 7.3 # XVFB with regular Chrome (not headless)
