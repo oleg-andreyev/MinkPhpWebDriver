@@ -364,14 +364,40 @@ class WebDriver extends CoreDriver
     public function switchToWindow($name = null)
     {
         if ($this->browserName === 'firefox') {
+            // Firefox stores window IDs rather than window names and does not provide a working way to map the ids to
+            // names.
+            // Each time we switch to a window, we fetch the list of window IDs, and attempt to map them.
+            // This involves switching to that window and fetching the window.name.
             // @see https://github.com/mozilla/geckodriver/issues/149
+            $handles = [];
+            foreach ($this->getWindowNames() as $id) {
+                if ($id === $this->rootWindow) {
+                    // Do not put the root window into the list of handles.
+                    continue;
+                }
+
+                $title = array_search($id, $this->windows, true);
+                if ($title !== false) {
+                    // This window is current and the name already stored.
+                    // Use the currently stored id from $this->windows to avoid switching window unnecessarily.
+                    $handles[$title] = $id;
+                } else {
+                    // This window title is unknown. Switch to the window by ID and find the name.
+                    $this->webDriver->switchTo()->window($id);
+                    $title = $this->evaluateScript('window.name');
+
+                    $handles[$title] = $id;
+                }
+            }
+
+            // Store the window name => id mappings.
+            $this->windows = $handles;
+
             if (null === $name) {
                 $name = $this->rootWindow;
-            } else if ($windowId = array_search($name, $this->windows, true)) {
-                $name = $windowId;
+            } else if (array_key_exists($name, $this->windows)) {
+                $name = $this->windows[$name];
             }
-            $this->webDriver->switchTo()->window($name);
-            return;
         }
 
         $this->webDriver->switchTo()->window($name);
@@ -751,29 +777,6 @@ EOF;
     {
         $element = $this->findElement($xpath);
         $this->clickOnElement($element);
-
-        if ($this->browserName === 'firefox') {
-            $handles = array_filter(array_map(function ($v) {
-                if ($v === $this->rootWindow) {
-                    return false;
-                }
-
-                if (array_key_exists($v, $this->windows)) {
-                    return false;
-                }
-
-                $this->switchToWindow($v);
-                $title = $this->evaluateScript('window.name');
-                $this->switchToWindow(null);
-
-                return [$title => $v];
-            }, $this->getWindowNames()));
-
-            if ($handles) {
-                $handles = array_flip(array_merge(...$handles));
-                $this->windows += $handles;
-            }
-        }
     }
 
     /**
