@@ -28,6 +28,7 @@ use Facebook\WebDriver\WebDriverElement;
 use Facebook\WebDriver\WebDriverKeys as Keys;
 use Facebook\WebDriver\WebDriverRadios;
 use Facebook\WebDriver\WebDriverSelect;
+use Facebook\WebDriver\Exception\ElementNotInteractableException;
 
 /**
  * WebDriver driver.
@@ -781,7 +782,29 @@ class WebDriver extends CoreDriver
             $this->webDriver->action()->moveToElement($element)->perform();
         }
 
-        $element->click();
+        if ($this->browserName === 'firefox') {
+            try {
+                $element->click();
+            } catch (ElementNotInteractableException $e) {
+                // There is a bug in Geckodriver which means that it is unable to click any link which contains a block
+                // level node. See https://github.com/mozilla/geckodriver/issues/653.
+                // The workaround is to click on a descendant node instead.
+                $children = $element->findElements(WebDriverBy::xpath('./*'));
+                foreach ($children as $child) {
+                    // Call ourselves recursively surpressing the same ElementNotInteractableException exception until
+                    // we run out of potential children to click.
+                    try {
+                        $this->clickOnElement($child);
+                        return;
+                    } catch (ElementNotInteractableException $e) {
+                    }
+                }
+
+                throw $e;
+            }
+        } else {
+            $element->click();
+        }
     }
 
     /**
