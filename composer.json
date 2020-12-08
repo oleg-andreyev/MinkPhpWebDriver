@@ -19,14 +19,15 @@
         }
     ],
     "require": {
-        "php":                     ">=7.0",
+        "php":                     ">=7.2",
         "behat/mink":              "^1.8",
         "php-webdriver/webdriver": "^1.8"
     },
     "require-dev": {
         "ext-json": "*",
         "mink/driver-testsuite": "dev-integration-branch",
-        "behat/mink-extension": "^2.3"
+        "behat/mink-extension": "^2.3",
+        "symfony/phpunit-bridge": "^5.2"
     },
     "autoload": {
         "psr-4": {

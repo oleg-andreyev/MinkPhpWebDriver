@@ -631,14 +631,9 @@ class WebDriver extends CoreDriver
             // using DateTimeFormat to detect local format
             // See https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/DateTimeFormat#Syntax
             if ('date' === $elementType) {
-                $time = strtotime($value);
-                if ($this->browserName === 'firefox') {
-                    $this->executeJsOnElement($element, sprintf('return {{ELEMENT}}.valueAsNumber = %d', $time * 1000));
-                    return;
-                }
-
-                $format = $this->getDateTimeFormatForRemoteDriver();
-                $value = date($format, $time);
+                $date = date(DATE_ATOM, strtotime($value));
+                $this->executeJsOnElement($element, sprintf('return {{ELEMENT}}.valueAsDate = new Date("%s")', $date));
+                return;
             }
         }
 
