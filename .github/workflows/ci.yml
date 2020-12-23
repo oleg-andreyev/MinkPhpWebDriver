@@ -1,0 +1,89 @@
+on: [ push ]
+
+env:
+  DRIVER_URL: "http://localhost:4444"
+  WEB_FIXTURES_HOST: "http://localhost:8002"
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        php: [ 7.2, 7.3, 7.4, 8.0 ]
+        browser: [ chrome, firefox ]
+        include:
+          - php: 8.1
+            experimental: true
+            browser: chrome
+    timeout-minutes: 10
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@2.9.0
+        with:
+          php-version: ${{ matrix.php }}
+          coverage: none
+          extensions: zip, :xdebug
+          tools: composer
+
+      - name: Determine composer cache directory
+        id: composer-cache
+        run: echo "::set-output name=directory::$(composer config cache-dir)"
+
+      - name: Cache composer dependencies
+        uses: actions/cache@v1
+        with:
+          path: ${{ steps.composer-cache.outputs.directory }}
+          key: ${{ matrix.php }}-composer-${{ hashFiles('**/composer.lock') }}
+          restore-keys: ${{ matrix.php }}-composer-
+
+      - name: Install dependencies
+        run: |
+          echo "::group::apt-get install"
+          sudo apt-get install xvfb
+          echo "::endgroup::"
+
+          echo "::group::composer update"
+          composer update --no-interaction --prefer-dist
+          echo "::endgroup::"
+
+          echo "::group::composer require symfony/phpunit-bridge"
+          composer require symfony/phpunit-bridge
+          echo "::endgroup::"
+
+      - name: Start webdriver
+        shell: bash
+        run: |
+          mkdir -p ./logs
+          if [[ "${{ matrix.browser }}" == "chrome" ]]; then
+            xvfb-run --auto-servernum $CHROMEWEBDRIVER/chromedriver --port=4444 --verbose --whitelisted-ips=  &> ./logs/webdriver.log &
+          else
+            xvfb-run --auto-servernum $GECKOWEBDRIVER/geckodriver --host 127.0.0.1 -vv --port 4444 &>./logs/webdriver.log &
+          fi;
+
+      - name: Start webserver
+        shell: bash
+        run: |
+          export USE_ZEND_ALLOC=0
+          mkdir -p ./logs
+          php -S localhost:8002 -t ./vendor/mink/driver-testsuite/web-fixtures &> ./logs/mink-test-server.log &
+
+      - name: Run tests
+        run: |
+          export BROWSER_NAME="${{ matrix.browser }}"
+          ./vendor/bin/simple-phpunit -v
+
+      - name: Archive logs artifacts
+        if: ${{ failure() }}
+        uses: actions/upload-artifact@v2
+        with:
+          name: logs_browser-${{ matrix.browser }}_php-${{ matrix.php }}
+          path: |
+            logs
