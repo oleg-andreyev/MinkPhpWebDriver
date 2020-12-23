@@ -81,12 +81,12 @@ class WebDriverConfig extends AbstractConfig
      */
     public function skipMessage($testCase, $test)
     {
-//        if (
-//            'Behat\Mink\Tests\Driver\Form\Html5Test' === $testCase
-//            && 'testHtml5Types' === $test
-//        ) {
-//            return 'WebDriver does not support setting value in color inputs. See https://code.google.com/p/selenium/issues/detail?id=7650';
-//        }
+        if (
+            'Behat\Mink\Tests\Driver\Basic\ClickTest' === $testCase
+            && 'testClickOutsideViewport' === $test
+        ) {
+            return 'Skipping until https://github.com/oleg-andreyev/MinkPhpWebDriver/pull/12';
+        }
 
         $desiredCapabilities = $this->driver->getDesiredCapabilities();
         $chromeOptions = $desiredCapabilities->getCapability(ChromeOptions::CAPABILITY_W3C);
