@@ -15,11 +15,9 @@ until $(echo | nc localhost 4444); do
 done;
 echo "$BROWSER_NAME driver started"
 
-if [ "$machine" = "linux" ]; then
-    ./vendor/bin/mink-test-server &> ./logs/mink-test-server.log &
-else
-    php -S localhost:8002 -t ./vendor/mink/driver-testsuite/web-fixtures &> ./logs/mink-test-server.log &
-fi;
+# see https://github.com/minkphp/driver-testsuite/pull/28
+export USE_ZEND_ALLOC=0
+php -S localhost:8002 -t ./vendor/mink/driver-testsuite/web-fixtures &> ./logs/mink-test-server.log &
 
 WEBSERVER_PID=$!
 
