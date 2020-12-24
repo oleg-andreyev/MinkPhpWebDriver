@@ -116,6 +116,7 @@ class WebDriver extends CoreDriver
      */
     public function setTimeouts(array $timeouts)
     {
+        // TODO: driver does not have getTimeouts
         $this->timeouts = $timeouts;
 
         if ($this->isStarted()) {
