@@ -38,47 +38,33 @@ class WebDriverConfig extends AbstractConfig
 
         if ($browser === 'firefox') {
             $desiredCapabilities = DesiredCapabilities::firefox();
-        } else if ($browser === 'chrome') {
+        } else if ($browser === 'chrome' || $browser === 'msedge') {
             $desiredCapabilities = DesiredCapabilities::chrome();
+            if ($browser === 'msedge') {
+                $desiredCapabilities->setBrowserName('msedge');
+            }
         } else {
             $desiredCapabilities = new DesiredCapabilities();
         }
 
         $capabilityMap = [
             'firefox' => FirefoxDriver::PROFILE,
-            'chrome' => ChromeOptions::CAPABILITY
+            'chrome' => ChromeOptions::CAPABILITY_W3C,
+            'msedge' => ChromeOptions::CAPABILITY_W3C,
         ];
 
         if (isset($capabilityMap[$browser])) {
             $optionsOrProfile = $desiredCapabilities->getCapability($capabilityMap[$browser]);
-            if ($browser === 'chrome') {
+            if ($browser === 'chrome' || $browser === 'msedge') {
                 if (!$optionsOrProfile) {
-                    $optionsOrProfile = new class extends ChromeOptions {
-                        public function toArray()
-                        {
-                            $result = parent::toArray();
-                            if (empty($result['binary'])) {
-                                unset($result['binary']);
-                            }
-
-                            if (count($result) === 0) {
-                                // The selenium server expects a 'dictionary' instead of a 'list' when
-                                // reading the chrome option. However, an empty array in PHP will be
-                                // converted to a 'list' instead of a 'dictionary'. To fix it, we always
-                                // set the 'binary' to avoid returning an empty array.
-                                $result = new \ArrayObject();
-                            }
-
-                            return $result;
-                        }
-                    };
+                    $optionsOrProfile = new ChromeOptions();
                 }
-                $capability = $this->buildChromeOptions($desiredCapabilities, $optionsOrProfile, $driverOptions);
+                $optionsOrProfile = $this->buildChromeOptions($desiredCapabilities, $optionsOrProfile, $driverOptions);
             } else if ($browser === 'firefox') {
-                $capability = $this->buildFirefoxProfile($desiredCapabilities, $optionsOrProfile, $driverOptions);
+                $optionsOrProfile = $this->buildFirefoxProfile($desiredCapabilities, $optionsOrProfile, $driverOptions);
             }
 
-            $desiredCapabilities->setCapability($capabilityMap[$browser], $capability);
+            $desiredCapabilities->setCapability($capabilityMap[$browser], $optionsOrProfile);
         }
 
         $driver = new WebDriver($browser, [], $seleniumHost);
@@ -95,12 +81,12 @@ class WebDriverConfig extends AbstractConfig
      */
     public function skipMessage($testCase, $test)
     {
-//        if (
-//            'Behat\Mink\Tests\Driver\Form\Html5Test' === $testCase
-//            && 'testHtml5Types' === $test
-//        ) {
-//            return 'WebDriver does not support setting value in color inputs. See https://code.google.com/p/selenium/issues/detail?id=7650';
-//        }
+        if (
+            'Behat\Mink\Tests\Driver\Basic\ClickTest' === $testCase
+            && 'testClickOutsideViewport' === $test
+        ) {
+            return 'Skipping until https://github.com/oleg-andreyev/MinkPhpWebDriver/pull/12';
+        }
 
         $desiredCapabilities = $this->driver->getDesiredCapabilities();
         $chromeOptions = $desiredCapabilities->getCapability(ChromeOptions::CAPABILITY_W3C);
@@ -129,19 +115,20 @@ class WebDriverConfig extends AbstractConfig
     }
 
     /**
-     * @param ChromeOptions|null $capability
-     * @param array $driverOptions
+     * @param ChromeOptions $optionsOrProfile
+     * @param array         $driverOptions
      *
      * @return ChromeOptions
      */
-    private function buildChromeOptions(DesiredCapabilities $desiredCapabilities, ChromeOptions $capability, array $driverOptions)
+    private function buildChromeOptions(DesiredCapabilities $desiredCapabilities, ChromeOptions $optionsOrProfile, array $driverOptions = [])
     {
         $binary = $driverOptions['binary'] ?? null;
-        $capability->setBinary($binary);
+        $optionsOrProfile->setBinary($binary);
 
         $args = $driverOptions['args'] ?? [];
-        $capability->addArguments($args);
-        return $capability;
+        $optionsOrProfile->addArguments($args);
+
+        return $optionsOrProfile;
 
         // TODO
         //$capability->addEncodedExtension();
@@ -151,13 +138,13 @@ class WebDriverConfig extends AbstractConfig
     }
 
     /**
-     * @param FirefoxProfile $capability
-     * @param array $driverOptions
+     * @param FirefoxProfile $optionsOrProfile
+     * @param array          $driverOptions
      *
      * @return FirefoxProfile
      * @throws WebDriverException
      */
-    private function buildFirefoxProfile(DesiredCapabilities $desiredCapabilities, FirefoxProfile $capability, array $driverOptions)
+    private function buildFirefoxProfile(DesiredCapabilities $desiredCapabilities, FirefoxProfile $optionsOrProfile, array $driverOptions)
     {
         if (isset($driverOptions['binary'])) {
             $firefoxOptions = $desiredCapabilities->getCapability('moz:firefoxOptions');
@@ -185,12 +172,12 @@ class WebDriverConfig extends AbstractConfig
         }
         $preferences = isset($driverOptions['preference']) ? $driverOptions['preference'] : [];
         foreach ($preferences as $key => $preference) {
-            $capability->setPreference($key, $preference);
+            $optionsOrProfile->setPreference($key, $preference);
             // TODO
             // $capability->setRdfFile($key, $preference);
             // $capability->addExtensionDatas($key, $preference);
             // $capability->addExtension($key, $preference);
         }
-        return $capability;
+        return $optionsOrProfile;
     }
 }
