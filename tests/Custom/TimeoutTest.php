@@ -22,6 +22,13 @@ class TimeoutTest extends TestCase
         $this->driver = $this->session->getDriver();
     }
 
+    protected function tearDown(): void
+    {
+        // https://developer.mozilla.org/en-US/docs/Web/WebDriver/Commands/SetTimeouts
+        $this->driver->setTimeouts(array('implicit' => 0, 'pageLoad' => 300000, 'script' => 30000));
+    }
+
+
     public function testInvalidTimeoutSettingThrowsException()
     {
         $this->expectException(DriverException::class);

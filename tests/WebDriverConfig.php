@@ -84,6 +84,9 @@ class WebDriverConfig extends AbstractConfig
         $driver = new WebDriver($browser, [], $seleniumHost);
         $driver->setDesiredCapabilities($desiredCapabilities);
 
+        // https://developer.mozilla.org/en-US/docs/Web/WebDriver/Commands/SetTimeouts
+        $driver->setTimeouts(array('implicit' => 0, 'pageLoad' => 300000, 'script' => 30000));
+
         return $this->driver = $driver;
     }
 
@@ -109,7 +112,7 @@ class WebDriverConfig extends AbstractConfig
         if (
             'Behat\Mink\Tests\Driver\Js\WindowTest' === $testCase
             && (0 === strpos($test, 'testWindowMaximize'))
-            && ('true' === getenv('TRAVIS') || $headless)
+            && ('true' === getenv('CI') || $headless)
         ) {
             return 'Maximizing the window does not work when running the browser in Xvfb/Headless.';
         }
