@@ -116,6 +116,7 @@ class WebDriver extends CoreDriver
      */
     public function setTimeouts(array $timeouts)
     {
+        // TODO: driver does not have getTimeouts
         $this->timeouts = $timeouts;
 
         if ($this->isStarted()) {
@@ -303,6 +304,10 @@ class WebDriver extends CoreDriver
     public function reset()
     {
         $this->webDriver->manage()->deleteAllCookies();
+        // TODO: resizeWindow does not accept NULL
+        $this->maximizeWindow();
+        // reset timeout
+        $this->timeouts = [];
     }
 
     /**
