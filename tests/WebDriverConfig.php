@@ -58,6 +58,7 @@ class WebDriverConfig extends AbstractConfig
             if ($browser === 'chrome' || $browser === 'msedge') {
                 if (!$optionsOrProfile) {
                     $optionsOrProfile = new ChromeOptions();
+                    $optionsOrProfile->addArguments(['disable-gpu']);
                 }
                 $optionsOrProfile = $this->buildChromeOptions($desiredCapabilities, $optionsOrProfile, $driverOptions);
             } else if ($browser === 'firefox') {
