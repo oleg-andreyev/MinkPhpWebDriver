@@ -81,13 +81,6 @@ class WebDriverConfig extends AbstractConfig
      */
     public function skipMessage($testCase, $test)
     {
-        if (
-            'Behat\Mink\Tests\Driver\Basic\ClickTest' === $testCase
-            && 'testClickOutsideViewport' === $test
-        ) {
-            return 'Skipping until https://github.com/oleg-andreyev/MinkPhpWebDriver/pull/12';
-        }
-
         $desiredCapabilities = $this->driver->getDesiredCapabilities();
         $chromeOptions = $desiredCapabilities->getCapability(ChromeOptions::CAPABILITY_W3C);
 
