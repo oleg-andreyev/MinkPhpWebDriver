@@ -776,11 +776,34 @@ EOF;
         }
     }
 
+    /**
+     * Attempt to ensure that the node is in the viewport.
+     *
+     * @param WebDriverElement $element
+     */
+    private function scrollElementIntoViewIfRequired(WebDriverElement $element)
+    {
+        $js = <<<EOF
+    var node = {{ELEMENT}};
+
+    var rect = node.getBoundingClientRect();
+    var nodeAtRect = document.elementFromPoint(rect.left + (rect.width / 2), rect.top + (rect.height / 2));
+
+    if (!node.contains(nodeAtRect)) {
+        node.scrollIntoView();
+    }
+EOF;
+        $this->executeJsOnElement($element, $js);
+    }
+
     private function clickOnElement(WebDriverElement $element)
     {
         if ($this->browserName === 'firefox') {
-            // TODO: Firefox does not move cursor over an element?
-            $this->webDriver->action()->moveToElement($element)->perform();
+            // TODO: Raise a bug against geckodrvier.
+            // Firefox does not move cursor over an element in breach of https://w3c.github.io/webdriver/#element-click
+            // section 8.Otherwise.
+            $this->scrollElementIntoViewIfRequired($element);
+            $this->mouseOverElement($element);
         }
 
         $element->click();
@@ -831,6 +854,11 @@ EOF;
     public function mouseOver($xpath)
     {
         $element = $this->findElement($xpath);
+        $this->webDriver->action()->moveToElement($element)->perform();
+    }
+
+    private function mouseOverElement(WebDriverElement $element)
+    {
         $this->webDriver->action()->moveToElement($element)->perform();
     }
 
