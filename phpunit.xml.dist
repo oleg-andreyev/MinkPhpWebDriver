@@ -20,6 +20,10 @@
         </testsuite>
     </testsuites>
 
+    <listeners>
+        <listener class="OAndreyev\Mink\Tests\Driver\ScreenshotListener"/>
+    </listeners>
+
     <php>
         <var name="driver_config_factory" value="OAndreyev\Mink\Tests\Driver\WebDriverConfig::getInstance" />
 

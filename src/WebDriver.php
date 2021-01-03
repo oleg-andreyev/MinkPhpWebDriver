@@ -457,9 +457,9 @@ class WebDriver extends CoreDriver
     /**
      * {@inheritdoc}
      */
-    public function getScreenshot()
+    public function getScreenshot($save_as = null)
     {
-        return $this->webDriver->takeScreenshot();
+        return $this->webDriver->takeScreenshot($save_as);
     }
 
     /**
