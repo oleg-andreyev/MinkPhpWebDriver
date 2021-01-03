@@ -19,4 +19,26 @@ class WindowNameTest extends TestCase
         $this->assertIsString($windowName);
         $this->assertContains($windowName, $windowNames, 'The current window name is one of the available window names.');
     }
+
+    public function testReopenWindow()
+    {
+        $this->getSession()->visit($this->pathTo('/window.html'));
+        $session = $this->getSession();
+        $page = $session->getPage();
+        $webAssert = $this->getAssertSession();
+
+        $page->clickLink('Popup #1');
+        $session->switchToWindow('popup_1');
+        $el = $webAssert->elementExists('css', '#text');
+        $this->assertSame('Popup#1 div text', $el->getText());
+
+        $session->executeScript('window.close();');
+
+        $session->switchToWindow(null);
+
+        $page->clickLink('Popup #1');
+        $session->switchToWindow('popup_1');
+        $el = $webAssert->elementExists('css', '#text');
+        $this->assertSame('Popup#1 div text', $el->getText());
+    }
 }
