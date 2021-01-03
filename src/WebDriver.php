@@ -22,6 +22,7 @@ use Facebook\WebDriver\Remote\DesiredCapabilities;
 use Facebook\WebDriver\Remote\LocalFileDetector;
 use Facebook\WebDriver\Remote\RemoteWebDriver;
 use Facebook\WebDriver\Remote\RemoteWebElement;
+use Facebook\WebDriver\WebDriverAlert;
 use Facebook\WebDriver\WebDriverBy;
 use Facebook\WebDriver\WebDriverDimension;
 use Facebook\WebDriver\WebDriverElement;
@@ -1184,5 +1185,14 @@ EOF;
         $element = $this->findElement($xpath);
         $char = $this->decodeChar($char);
         $element->sendKeys(($modifier ? $this->keyModifier($modifier) : '') . $char);
+    }
+
+    public function getCurrentPromptOrAlert(): ?WebDriverAlert
+    {
+        if (!$this->isStarted()) {
+            return null;
+        }
+
+        return $this->webDriver->switchTo()->alert();
     }
 }
