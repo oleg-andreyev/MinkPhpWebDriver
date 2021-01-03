@@ -581,7 +581,16 @@ class WebDriver extends CoreDriver
 
         if ('input' === $elementName && 'radio' === $elementType) {
             $radios = new WebDriverRadios($element);
-            return $radios->getFirstSelectedOption()->getAttribute('value');
+            try {
+                return $radios->getFirstSelectedOption()->getAttribute('value');
+            } catch (NoSuchElementException $e) {
+                // TODO: Need to distinguish missing element and no radio selected
+                if ($e->getMessage() === 'No radio buttons are selected') {
+                    return null;
+                }
+
+                throw $e;
+            }
         }
 
         // Using $element->attribute('value') on a select only returns the first selected option
@@ -594,7 +603,16 @@ class WebDriver extends CoreDriver
                 }, $select->getAllSelectedOptions());
             }
 
-            return $select->getFirstSelectedOption()->getAttribute('value');
+            try {
+                return $select->getFirstSelectedOption()->getAttribute('value');
+            } catch (NoSuchElementException $e) {
+                // TODO: Need to distinguish missing element and no option selected
+                if ($e->getMessage() === 'No options are selected') {
+                    return '';
+                }
+
+                throw $e;
+            }
         }
 
         return $element->getAttribute('value');
