@@ -684,6 +684,12 @@ class WebDriver extends CoreDriver
                 $this->executeJsOnElement($element, sprintf('return {{ELEMENT}}.valueAsDate = new Date("%s")', $date));
                 return;
             }
+
+            if ('time' === $elementType) {
+                $date = date(DATE_ATOM, strtotime($value));
+                $this->executeJsOnElement($element, sprintf('return {{ELEMENT}}.valueAsDate = new Date("%s")', $date));
+                return;
+            }
         }
 
         $value = (string) $value;
