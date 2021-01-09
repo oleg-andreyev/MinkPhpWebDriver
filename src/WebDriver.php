@@ -457,9 +457,9 @@ class WebDriver extends CoreDriver
     /**
      * {@inheritdoc}
      */
-    public function getScreenshot()
+    public function getScreenshot($save_as = null)
     {
-        return $this->webDriver->takeScreenshot();
+        return $this->webDriver->takeScreenshot($save_as);
     }
 
     /**
@@ -581,7 +581,16 @@ class WebDriver extends CoreDriver
 
         if ('input' === $elementName && 'radio' === $elementType) {
             $radios = new WebDriverRadios($element);
-            return $radios->getFirstSelectedOption()->getAttribute('value');
+            try {
+                return $radios->getFirstSelectedOption()->getAttribute('value');
+            } catch (NoSuchElementException $e) {
+                // TODO: Need to distinguish missing element and no radio selected
+                if ($e->getMessage() === 'No radio buttons are selected') {
+                    return null;
+                }
+
+                throw $e;
+            }
         }
 
         // Using $element->attribute('value') on a select only returns the first selected option
@@ -594,7 +603,16 @@ class WebDriver extends CoreDriver
                 }, $select->getAllSelectedOptions());
             }
 
-            return $select->getFirstSelectedOption()->getAttribute('value');
+            try {
+                return $select->getFirstSelectedOption()->getAttribute('value');
+            } catch (NoSuchElementException $e) {
+                // TODO: Need to distinguish missing element and no option selected
+                if ($e->getMessage() === 'No options are selected') {
+                    return '';
+                }
+
+                throw $e;
+            }
         }
 
         return $element->getAttribute('value');
@@ -659,9 +677,8 @@ class WebDriver extends CoreDriver
                 return;
             }
 
-            // using DateTimeFormat to detect local format
-            // See https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/DateTimeFormat#Syntax
-            if ('date' === $elementType) {
+            // See https://developer.mozilla.org/en-US/docs/Web/API/HTMLInputElement
+            if ('date' === $elementType || 'time' === $elementType) {
                 $date = date(DATE_ATOM, strtotime($value));
                 $this->executeJsOnElement($element, sprintf('return {{ELEMENT}}.valueAsDate = new Date("%s")', $date));
                 return;
@@ -1167,59 +1184,5 @@ EOF;
         $element = $this->findElement($xpath);
         $char = $this->decodeChar($char);
         $element->sendKeys(($modifier ? $this->keyModifier($modifier) : '') . $char);
-    }
-
-    /**
-     * @return mixed|void
-     * @throws DriverException
-     * @throws UnsupportedDriverActionException
-     */
-    private function getDateTimeFormatForRemoteDriver()
-    {
-        $format = '';
-        $parts = $this->evaluateScript('return (new Intl.DateTimeFormat()).formatToParts(new Date(Date.UTC(2012, 01, 01, 01, 0, 0)))');
-        foreach ($parts as $part) {
-            if ($part['type'] === 'literal') {
-                $format .= $part['value'];
-                continue;
-            }
-
-            if ($part['type'] === 'day') {
-                if (strpos($part['value'], '0') === 0) {
-                    $format .= 'd';
-                } else {
-                    $format .= 'j';
-                }
-                continue;
-            }
-
-            if ($part['type'] === 'month') {
-                if (strpos($part['value'], '0') === 0) {
-                    $format .= 'm';
-                } else {
-                    $format .= 'n';
-                }
-                continue;
-            }
-
-            if ($part['type'] === 'year') {
-                if (strlen($part['value']) === 4) {
-                    $format .= 'Y';
-                } else {
-                    $format .= 'y';
-                }
-                continue;
-            }
-        }
-
-        return $format;
-    }
-
-    /**
-     * @inheritDoc
-     */
-    public function pressKey($xpath, $char, $modifier = null)
-    {
-        // TODO: Implement pressKey() method.
     }
 }
