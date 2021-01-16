@@ -122,11 +122,9 @@ if [[ "$BROWSER_NAME" == "firefox" ]]; then
 fi
 
 if [[ "$BROWSER_NAME" == "msedge" ]]; then
-    ./msedgedriver/msedgedriver --port=4444 --verbose --enable-chrome-logs --whitelisted-ips= &>./logs/webdriver.log &
+    ./msedgedriver/msedgedriver --port=4444 --verbose --enable-chrome-logs --whitelisted-ips=
 elif [[ "$BROWSER_NAME" == "chrome" ]]; then
-    ./chromedriver/chromedriver --port=4444 --verbose --enable-chrome-logs --whitelisted-ips= &>./logs/webdriver.log &
+    ./chromedriver/chromedriver --port=4444 --verbose --enable-chrome-logs --whitelisted-ips=
 elif [[ "$BROWSER_NAME" == "firefox" ]]; then
-    ./geckodriver/geckodriver --host 127.0.0.1 -vv --port 4444 &>./logs/webdriver.log &
-else
-    docker run --rm --network=host -p 4444:4444 "selenium/standalone-firefox:$SELENIUM_DRIVER" &>./logs/selenium.log &
+    ./geckodriver/geckodriver --host 127.0.0.1 -vv --port 4444
 fi

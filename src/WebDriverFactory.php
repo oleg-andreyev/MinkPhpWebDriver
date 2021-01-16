@@ -40,24 +40,16 @@ class WebDriverFactory extends Selenium2Factory
      */
     protected function guessCapabilities()
     {
-        if (getenv('TRAVIS_JOB_NUMBER')) {
+        if (getenv('CI')) {
             return [
-                'tunnel-identifier' => getenv('TRAVIS_JOB_NUMBER'),
-                'build' => getenv('TRAVIS_BUILD_NUMBER'),
-                'tags' => ['Travis-CI', 'PHP ' . phpversion()],
-            ];
-        }
-
-        if (getenv('JENKINS_HOME')) {
-            return [
-                'tunnel-identifier' => getenv('JOB_NAME'),
-                'build' => getenv('BUILD_NUMBER'),
-                'tags' => ['Jenkins', 'PHP ' . phpversion(), getenv('BUILD_TAG')],
+                'tunnel-identifier' => getenv('GITHUB_RUN_ID'),
+                'build' => getenv('GITHUB_RUN_NUMBER'),
+                'tags' => ['GitHub Actions', 'PHP ' . PHP_VERSION],
             ];
         }
 
         return [
-            'tags' => [php_uname('n'), 'PHP ' . phpversion()],
+            'tags' => [php_uname('n'), 'PHP ' . PHP_VERSION],
         ];
     }
 }

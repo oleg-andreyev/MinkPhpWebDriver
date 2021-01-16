@@ -2,22 +2,9 @@
 
 set -ex
 
-ATTEMPT=0
-until $(echo | nc localhost 4444); do
-    if [ $ATTEMPT -gt 5 ]; then
-        echo "Failed to start $BROWSER_NAME driver"
-        cat ./logs/webdriver.log
-        exit 1;
-    fi;
-    sleep 1;
-    echo "Waiting for $BROWSER_NAME driver on port 4444...";
-    ATTEMPT=$((ATTEMPT + 1))
-done;
-echo "$BROWSER_NAME driver started"
-
 # see https://github.com/minkphp/driver-testsuite/pull/28
 export USE_ZEND_ALLOC=0
-php -S localhost:8002 -t ./vendor/mink/driver-testsuite/web-fixtures &> ./logs/mink-test-server.log &
+php -S localhost:8002 -t ./vendor/mink/driver-testsuite/web-fixtures
 
 WEBSERVER_PID=$!
 
