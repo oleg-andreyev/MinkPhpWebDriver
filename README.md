@@ -8,26 +8,11 @@ Major updates include:
  - Update minimum php version to 7.2
  - Tested against the latest Google Chrome and Mozilla Firefox both in GUI and Headless modes
 
-## Using the MinkPhpWebDriver with Behat
+## Setup
 
-Subclass `Behat\MinkExtension\ServiceContainer\MinkExtension` and add the new driver factory.
-
-```php
-<?php
-
-namespace OAndreyev\BehatExtension;
-
-use Behat\MinkExtension\ServiceContainer\MinkExtension as BaseMinkExtension;
-use OAndreyev\Mink\Driver\WebDriverFactory;
-
-class MinkExtension extends BaseMinkExtension
-{
-    public function __construct()
-    {
-        parent::__construct();
-        $this->registerDriverFactory(new WebDriverFactory());
-    }
-}
+Install via `oleg-andreyev/mink-phpwebdriver-extension`
+```bash
+$ composer require --dev oleg-andreyev/mink-phpwebdriver-extension
 ```
 
 Add this extension to your `behat.yml` (see below)
@@ -35,14 +20,13 @@ Add this extension to your `behat.yml` (see below)
 - Set the wd_host to this server instead 
 ```yaml
 default:
-suites: []
-extensions:
-  OAndreyev\BehatExtension\MinkExtension:
-    default_session: webdriver
-    javascript_session: webdriver
-    webdriver:
-      browser: chrome
-      wd_host: "http://127.0.0.1:4444"
+    extensions:
+        OAndreyev\MinkPhpWebdriverExtension: ~
+        Behat\MinkExtension:
+            default_session: webdriver
+            webdriver:
+                wd_host: "http://0.0.0.0:4444/wd/hub"
+                browser: 'chrome'
 ```
 ## Testing
 

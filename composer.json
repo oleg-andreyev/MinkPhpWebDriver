@@ -1,5 +1,5 @@
 {
-    "name": "oleg-andreyev/mink-php-web-driver",
+    "name": "oleg-andreyev/mink-phpwebdriver",
     "description": "MinkPhpWebDriver driver for Mink framework",
     "keywords": [
         "webdriver",
