@@ -1,14 +1,22 @@
 {
-    "name":         "oleg-andreyev/mink-facebook-web-driver",
-    "description":  "MinkFacebookWebDriver driver for Mink framework",
-    "keywords":     ["webdriver", "w3c", "jsonwire", "javascript", "ajax", "testing", "browser"],
-    "type":         "mink-driver",
-    "license":      "MIT",
-
+    "name": "oleg-andreyev/mink-php-web-driver",
+    "description": "MinkPhpWebDriver driver for Mink framework",
+    "keywords": [
+        "webdriver",
+        "w3c",
+        "jsonwire",
+        "javascript",
+        "ajax",
+        "testing",
+        "browser"
+    ],
+    "type": "mink-driver",
+    "license": "MIT",
     "authors": [
         {
-            "name":      "Oleg Andreyev",
-            "email":     "oleg@andreyev.lv"
+            "name": "Oleg Andreyev",
+            "email": "oleg@andreyev.lv",
+            "role": "Main Developer"
         }
     ],
     "repositories": [
@@ -19,12 +27,13 @@
         }
     ],
     "require": {
-        "php":                     ">=7.2",
-        "behat/mink":              "^1.8",
+        "php": ">=7.2",
+        "behat/mink": "^1.8",
         "php-webdriver/webdriver": "^1.8"
     },
     "require-dev": {
         "ext-json": "*",
+        "roave/security-advisories": "dev-master",
         "mink/driver-testsuite": "dev-integration-branch",
         "behat/mink-extension": "^2.3",
         "symfony/phpunit-bridge": "^5.2"
