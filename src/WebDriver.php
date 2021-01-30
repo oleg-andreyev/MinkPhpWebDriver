@@ -266,6 +266,7 @@ class WebDriver extends CoreDriver
                 $this->applyTimeouts();
             }
             $this->rootWindow = $this->webDriver->getWindowHandle();
+            $this->windows = [];
         } catch (\Exception $e) {
             throw new DriverException('Could not open connection: ' . $e->getMessage(), 0, $e);
         }
