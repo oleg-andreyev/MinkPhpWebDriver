@@ -4,7 +4,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [1.0.1] - 2021-01-31
 ### Fixed
 - Clear the Firefox window handle cache when starting a session
 
@@ -23,6 +23,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Workaround for https://github.com/mozilla/geckodriver/issues/1816
 - Handling `input[type=time]`, `input[type=date]` and `input[type=color]`
 
-[Unreleased]: https://github.com/oleg-andreyev/MinkPhpWebDriver/compare/v1.0.0...HEAD
+[Unreleased]: https://github.com/oleg-andreyev/MinkPhpWebDriver/compare/v1.0.1...HEAD
+[1.0.1]: https://github.com/oleg-andreyev/MinkPhpWebDriver/compare/v1.0.0...v1.0.1
 [1.0.0]: https://github.com/oleg-andreyev/MinkPhpWebDriver/compare/07b0f6be5c4ec82b041b62b99bd48786a4373ad0...v1.0.0
 
