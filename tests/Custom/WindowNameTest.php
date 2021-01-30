@@ -41,4 +41,25 @@ class WindowNameTest extends TestCase
         $el = $webAssert->elementExists('css', '#text');
         $this->assertSame('Popup#1 div text', $el->getText());
     }
+
+    public function testSwitchWindowAfterReset()
+    {
+        $session = $this->getSession();
+        $page = $session->getPage();
+        $webAssert = $this->getAssertSession();
+
+        $session->restart();
+        $session->visit($this->pathTo('/window.html'));
+        $page->clickLink('Popup #1');
+        $session->switchToWindow('popup_1');
+        $el = $webAssert->elementExists('css', '#text');
+        $this->assertSame('Popup#1 div text', $el->getText());
+
+        $session->restart();
+        $session->visit($this->pathTo('/window.html'));
+        $page->clickLink('Popup #2');
+        $session->switchToWindow('popup_2');
+        $el = $webAssert->elementExists('css', '#text');
+        $this->assertSame('Popup#2 div text', $el->getText());
+    }
 }
