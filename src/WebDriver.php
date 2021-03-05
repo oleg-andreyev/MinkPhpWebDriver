@@ -412,7 +412,7 @@ class WebDriver extends CoreDriver
     public function switchToIFrame($name = null)
     {
         if ($name) {
-            $element = $this->webDriver->findElement(WebDriverBy::name($name));
+            $element = $this->webDriver->findElement(WebDriverBy::id($name));
             $this->webDriver->switchTo()->frame($element);
         } else {
             $this->webDriver->switchTo()->defaultContent();
