@@ -18,6 +18,7 @@ defaults:
 
 jobs:
   tests:
+    runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
@@ -30,7 +31,6 @@ jobs:
           - php: 8.1
             experimental: true
             browser: chrome
-    runs-on: ${{ matrix.os }}
     timeout-minutes: 10
     steps:
       - name: Checkout code
