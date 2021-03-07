@@ -1,3 +1,5 @@
+# https://docs.github.com/en/actions/reference/workflow-syntax-for-github-actions
+
 on:
   push:
     branches:
@@ -16,17 +18,21 @@ defaults:
 
 jobs:
   tests:
-    runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
+        os: [macos-latest, ubuntu-latest]
         php: [ 7.2, 7.3, 7.4, 8.0 ]
         browser: [ chrome, firefox ]
+        experimental: [false]
         include:
           - php: 8.1
             experimental: true
             browser: chrome
+            os: ubuntu-latest
+    runs-on: ${{ matrix.os }}
     timeout-minutes: 10
+    continue-on-error: ${{ matrix.experimental }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
@@ -47,14 +53,16 @@ jobs:
         uses: actions/cache@v2.1.4
         with:
           path: ${{ steps.composer-cache.outputs.directory }}
-          key: ${{ matrix.php }}-composer-${{ hashFiles('**/composer.lock') }}
+          key: ${{ matrix.os }}-${{ matrix.php }}-composer-${{ hashFiles('**/composer.lock') }}
           restore-keys: ${{ matrix.php }}-composer-
 
       - name: Install dependencies
         run: |
-          echo "::group::apt-get install"
-          sudo apt-get install xvfb
-          echo "::endgroup::"
+          if [[ "${{ matrix.os }}" == "ubuntu-latest" ]]; then
+            echo "::group::apt-get install"
+            sudo apt-get install xvfb
+            echo "::endgroup::"
+          fi;
 
           echo "::group::composer update"
           composer update --no-interaction --prefer-dist
@@ -67,11 +75,17 @@ jobs:
       - name: Start webdriver
         shell: bash
         run: |
+          set -ex
           mkdir -p ./logs
+          XVFB=""
+          if [[ "${{ matrix.os }}" == "ubuntu-latest" ]]; then
+            XVFB="xvfb-run --auto-servernum"
+          fi;
+
           if [[ "${{ matrix.browser }}" == "chrome" ]]; then
-            xvfb-run --auto-servernum $CHROMEWEBDRIVER/chromedriver --port=4444 --verbose --whitelisted-ips=  &> ./logs/webdriver.log &
+            $XVFB $CHROMEWEBDRIVER/chromedriver --port=4444 --verbose --whitelisted-ips=  &> ./logs/webdriver.log &
           else
-            xvfb-run --auto-servernum $GECKOWEBDRIVER/geckodriver --host 127.0.0.1 -vv --port 4444 &>./logs/webdriver.log &
+            $XVFB $GECKOWEBDRIVER/geckodriver --host 127.0.0.1 -vv --port 4444 &>./logs/webdriver.log &
           fi;
 
       - name: Start webserver
@@ -90,6 +104,6 @@ jobs:
         if: ${{ failure() }}
         uses: actions/upload-artifact@v2
         with:
-          name: logs_browser-${{ matrix.browser }}_php-${{ matrix.php }}
+          name: logs_browser-${{ matrix.os }}-${{ matrix.browser }}_php-${{ matrix.php }}
           path: |
             logs
