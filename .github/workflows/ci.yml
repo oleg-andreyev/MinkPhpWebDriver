@@ -77,10 +77,15 @@ jobs:
         run: |
           set -ex
           mkdir -p ./logs
+          XVFB=""
+          if [[ "${{ matrix.os }}" == "ubuntu-latest" ]]; then
+            XVFB="xvfb-run --auto-servernum"
+          fi;
+
           if [[ "${{ matrix.browser }}" == "chrome" ]]; then
-            xvfb-run --auto-servernum $CHROMEWEBDRIVER/chromedriver --port=4444 --verbose --whitelisted-ips=  &> ./logs/webdriver.log &
+            $XVFB $CHROMEWEBDRIVER/chromedriver --port=4444 --verbose --whitelisted-ips=  &> ./logs/webdriver.log &
           else
-            xvfb-run --auto-servernum $GECKOWEBDRIVER/geckodriver --host 127.0.0.1 -vv --port 4444 &>./logs/webdriver.log &
+            $XVFB $GECKOWEBDRIVER/geckodriver --host 127.0.0.1 -vv --port 4444 &>./logs/webdriver.log &
           fi;
 
       - name: Start webserver
