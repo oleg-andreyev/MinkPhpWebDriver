@@ -67,7 +67,7 @@ class ScreenshotListener implements TestListener
             return;
         }
 
-        $filename = str_replace(['#', ' ', '.', ','], '_', $test->getName());
+        $filename = str_replace(['#', ' ', '.', ',', '"', '\''], '_', $test->getName());
         $session->getDriver()->getScreenshot(getcwd() . '/logs/' . $filename . '.png');
     }
 }
