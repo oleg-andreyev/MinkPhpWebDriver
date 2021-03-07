@@ -18,20 +18,19 @@ defaults:
 
 jobs:
   tests:
-    runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
-        os:
-          - ubuntu-latest
-          - macos-latest
+        os: [macos-latest, ubuntu-latest]
         php: [ 7.2, 7.3, 7.4, 8.0 ]
         browser: [ chrome, firefox ]
         include:
           - php: 8.1
             experimental: true
             browser: chrome
+    runs-on: ${{ matrix.os }}
     timeout-minutes: 10
+    continue-on-error: ${{ matrix.experimental }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
