@@ -58,9 +58,11 @@ jobs:
 
       - name: Install dependencies
         run: |
-          echo "::group::apt-get install"
-          sudo apt-get install xvfb
-          echo "::endgroup::"
+          if [[ "${{ matrix.os }}" == "ubuntu-latest" ]]; then
+            echo "::group::apt-get install"
+            sudo apt-get install xvfb
+            echo "::endgroup::"
+          fi;
 
           echo "::group::composer update"
           composer update --no-interaction --prefer-dist
