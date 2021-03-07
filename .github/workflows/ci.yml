@@ -24,6 +24,7 @@ jobs:
         os: [macos-latest, ubuntu-latest]
         php: [ 7.2, 7.3, 7.4, 8.0 ]
         browser: [ chrome, firefox ]
+        experimental: false
         include:
           - php: 8.1
             experimental: true
