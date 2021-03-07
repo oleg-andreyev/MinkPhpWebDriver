@@ -21,7 +21,9 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, macos-latest]
+        os:
+          - ubuntu-latest
+          - macos-latest
         php: [ 7.2, 7.3, 7.4, 8.0 ]
         browser: [ chrome, firefox ]
         include:
