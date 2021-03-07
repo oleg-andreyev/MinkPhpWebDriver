@@ -53,7 +53,7 @@ jobs:
         uses: actions/cache@v2.1.4
         with:
           path: ${{ steps.composer-cache.outputs.directory }}
-          key: ${{ matrix.php }}-composer-${{ hashFiles('**/composer.lock') }}
+          key: ${{ matrix.os }}-${{ matrix.php }}-composer-${{ hashFiles('**/composer.lock') }}
           restore-keys: ${{ matrix.php }}-composer-
 
       - name: Install dependencies
@@ -75,6 +75,7 @@ jobs:
       - name: Start webdriver
         shell: bash
         run: |
+          set -ex
           mkdir -p ./logs
           if [[ "${{ matrix.browser }}" == "chrome" ]]; then
             xvfb-run --auto-servernum $CHROMEWEBDRIVER/chromedriver --port=4444 --verbose --whitelisted-ips=  &> ./logs/webdriver.log &
@@ -98,6 +99,6 @@ jobs:
         if: ${{ failure() }}
         uses: actions/upload-artifact@v2
         with:
-          name: logs_browser-${{ matrix.browser }}_php-${{ matrix.php }}
+          name: logs_browser-${{ matrix.os }}-${{ matrix.browser }}_php-${{ matrix.php }}
           path: |
             logs
