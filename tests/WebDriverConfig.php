@@ -49,8 +49,8 @@ class WebDriverConfig extends AbstractConfig
 
         $capabilityMap = [
             'firefox' => FirefoxDriver::PROFILE,
-            'chrome' => ChromeOptions::CAPABILITY_W3C,
-            'msedge' => ChromeOptions::CAPABILITY_W3C,
+            'chrome' => ChromeOptions::CAPABILITY,
+            'msedge' => ChromeOptions::CAPABILITY,
         ];
 
         if (isset($capabilityMap[$browser])) {
@@ -58,6 +58,7 @@ class WebDriverConfig extends AbstractConfig
             if ($browser === 'chrome' || $browser === 'msedge') {
                 if (!$optionsOrProfile) {
                     $optionsOrProfile = new ChromeOptions();
+                    $optionsOrProfile->addArguments(['disable-gpu']);
                 }
                 $optionsOrProfile = $this->buildChromeOptions($desiredCapabilities, $optionsOrProfile, $driverOptions);
             } else if ($browser === 'firefox') {
