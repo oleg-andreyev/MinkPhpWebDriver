@@ -62,10 +62,6 @@ jobs:
           composer update --no-interaction --prefer-dist
           echo "::endgroup::"
 
-          echo "::group::composer require symfony/phpunit-bridge"
-          composer require symfony/phpunit-bridge
-          echo "::endgroup::"
-
       - name: Start webdriver
         shell: bash
         run: |
@@ -82,6 +78,10 @@ jobs:
           export USE_ZEND_ALLOC=0
           mkdir -p ./logs
           php -S localhost:8002 -t ./vendor/mink/driver-testsuite/web-fixtures &> ./logs/mink-test-server.log &
+
+      - name: Run psalm
+        run: |
+          ./vendor/bin/psalm --output-format=github
 
       - name: Run tests
         run: |
