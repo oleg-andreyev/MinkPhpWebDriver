@@ -33,13 +33,15 @@
 <!--        <server name="WEB_FIXTURES_HOST" value="http://localhost:8002"/>-->
 
 <!--        <env name="BROWSER_NAME" value="chrome"/>-->
+<!--        <env name="BROWSER_NAME" value="msedge"/>-->
         <!-- https://peter.sh/experiments/chromium-command-line-switches/ -->
 <!--        <env name="DRIVER_OPTIONS" value='{"args":["headless"]}'/>-->
 
+<!--        <env name="BROWSER_NAME" value="safari"/>-->
 <!--        <env name="BROWSER_NAME" value="firefox"/>-->
 <!--        https://developer.mozilla.org/en-US/docs/Web/WebDriver/Capabilities/firefoxOptions#binary-->
 <!--        <env name="DRIVER_OPTIONS" value='{"log": {"level":"trace"}, "args": ["-headless"], "binary": "/Applications/Firefox Developer Edition.app/Contents/MacOS/firefox-bin"}'/>-->
-<!--        <env name="DRIVER_OPTIONS" value='{"log": {"level":"trace"}, "binary": "/Applications/Firefox Developer Edition.app/Contents/MacOS/firefox-bin"}'/>-->
+<!--        <env name="DRIVER_OPTIONS" value='{"log": {"level":"trace"}}'/>-->
 
         <!-- where driver will connect to -->
         <server name="DRIVER_URL" value="http://localhost:4444" />

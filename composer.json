@@ -28,13 +28,13 @@
     ],
     "require": {
         "php": ">=7.2",
-        "behat/mink": "^1.8",
-        "php-webdriver/webdriver": "^1.8"
+        "ext-json": "*",
+        "behat/mink": "^1.9",
+        "php-webdriver/webdriver": "^1.12"
     },
     "require-dev": {
-        "ext-json": "*",
         "roave/security-advisories": "dev-master",
-        "mink/driver-testsuite": "dev-integration-branch",
+        "mink/driver-testsuite": "dev-upstream-merge",
         "behat/mink-extension": "^2.3",
         "symfony/phpunit-bridge": "^5.2"
     },
@@ -51,6 +51,11 @@
     "extra": {
         "branch-alias": {
             "dev-master": "1.0.x-dev"
+        }
+    },
+    "config": {
+        "allow-plugins": {
+            "bamarni/composer-bin-plugin": true
         }
     }
 }

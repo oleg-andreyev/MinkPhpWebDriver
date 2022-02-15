@@ -7,6 +7,7 @@ use Behat\Mink\Tests\Driver\Js\WindowTest;
 use Facebook\WebDriver\Chrome\ChromeOptions;
 use Facebook\WebDriver\Exception\WebDriverException;
 use Facebook\WebDriver\Firefox\FirefoxDriver;
+use Facebook\WebDriver\Firefox\FirefoxOptions;
 use Facebook\WebDriver\Firefox\FirefoxProfile;
 use Facebook\WebDriver\Remote\DesiredCapabilities;
 use OAndreyev\Mink\Driver\WebDriver;
@@ -18,7 +19,7 @@ class WebDriverConfig extends AbstractConfig
      */
     private $driver;
 
-    public static function getInstance()
+    public static function getInstance(): self
     {
         return new self();
     }
@@ -48,23 +49,26 @@ class WebDriverConfig extends AbstractConfig
         }
 
         $capabilityMap = [
-            'firefox' => FirefoxDriver::PROFILE,
+            'firefox' => FirefoxOptions::CAPABILITY,
             'chrome' => ChromeOptions::CAPABILITY_W3C,
             'msedge' => ChromeOptions::CAPABILITY_W3C,
         ];
 
         if (isset($capabilityMap[$browser])) {
-            $optionsOrProfile = $desiredCapabilities->getCapability($capabilityMap[$browser]);
+            $options = $desiredCapabilities->getCapability($capabilityMap[$browser]);
             if ($browser === 'chrome' || $browser === 'msedge') {
-                if (!$optionsOrProfile) {
-                    $optionsOrProfile = new ChromeOptions();
+                if (!$options) {
+                    $options = new ChromeOptions();
                 }
-                $optionsOrProfile = $this->buildChromeOptions($desiredCapabilities, $optionsOrProfile, $driverOptions);
+                $options = $this->buildChromeOptions($desiredCapabilities, $options, $driverOptions);
             } else if ($browser === 'firefox') {
-                $optionsOrProfile = $this->buildFirefoxProfile($desiredCapabilities, $optionsOrProfile, $driverOptions);
+                if (!$options) {
+                    $options = new FirefoxOptions();
+                }
+                $options = $this->buildFirefoxOptions($desiredCapabilities, $options, $driverOptions);
             }
 
-            $desiredCapabilities->setCapability($capabilityMap[$browser], $optionsOrProfile);
+            $desiredCapabilities->setCapability($capabilityMap[$browser], $options);
         }
 
         $driver = new WebDriver($browser, [], $seleniumHost);
@@ -131,46 +135,34 @@ class WebDriverConfig extends AbstractConfig
     }
 
     /**
-     * @param FirefoxProfile $optionsOrProfile
-     * @param array          $driverOptions
+     * @param DesiredCapabilities $desiredCapabilities
+     * @param FirefoxOptions      $firefoxOptions
+     * @param array               $driverOptions
      *
-     * @return FirefoxProfile
-     * @throws WebDriverException
+     * @return FirefoxOptions
      */
-    private function buildFirefoxProfile(DesiredCapabilities $desiredCapabilities, FirefoxProfile $optionsOrProfile, array $driverOptions)
+    private function buildFirefoxOptions(DesiredCapabilities $desiredCapabilities, FirefoxOptions $firefoxOptions, array $driverOptions)
     {
         if (isset($driverOptions['binary'])) {
-            $firefoxOptions = $desiredCapabilities->getCapability('moz:firefoxOptions');
-            if (empty($firefoxOptions)) {
-                $firefoxOptions = [];
-            }
-            $firefoxOptions = array_merge($firefoxOptions, ['binary' => $driverOptions['binary']]);
-            $desiredCapabilities->setCapability('moz:firefoxOptions', $firefoxOptions);
+            $firefoxOptions->setOption('binary', $driverOptions['binary']);
         }
         if (isset($driverOptions['log'])) {
-            $firefoxOptions = $desiredCapabilities->getCapability('moz:firefoxOptions');
-            if (empty($firefoxOptions)) {
-                $firefoxOptions = [];
-            }
-            $firefoxOptions = array_merge($firefoxOptions, ['log' => $driverOptions['log']]);
-            $desiredCapabilities->setCapability('moz:firefoxOptions', $firefoxOptions);
+            $firefoxOptions->setOption('log', $driverOptions['log']);
         }
         if (isset($driverOptions['args'])) {
-            $firefoxOptions = $desiredCapabilities->getCapability('moz:firefoxOptions');
-            if (empty($firefoxOptions)) {
-                $firefoxOptions = [];
-            }
-            $firefoxOptions = array_merge($firefoxOptions, ['args' => $driverOptions['args']]);
-            $desiredCapabilities->setCapability('moz:firefoxOptions', $firefoxOptions);
+            $firefoxOptions->addArguments($driverOptions['args']);
         }
-        $preferences = isset($driverOptions['preference']) ? $driverOptions['preference'] : [];
-        foreach ($preferences as $key => $preference) {
-            $optionsOrProfile->setPreference($key, $preference);
-            // TODO
-            // $capability->setRdfFile($key, $preference);
-            // $capability->addExtensionDatas($key, $preference);
-            // $capability->addExtension($key, $preference);
-        }
-        return $optionsOrProfile;
+
+        return $firefoxOptions;
+
+//        $preferences = $driverOptions['preference'] ?? [];
+//        foreach ($preferences as $key => $preference) {
+//            $firefoxProfile->setPreference($key, $preference);
+//            // TODO
+//            // $capability->setRdfFile($key, $preference);
+//            // $capability->addExtensionDatas($key, $preference);
+//            // $capability->addExtension($key, $preference);
+//        }
+//        return $firefoxProfile;
     }
 }

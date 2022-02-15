@@ -63,7 +63,7 @@ class ScreenshotListener implements TestListener
             return $this->getSession();
         }, $test, $test)();
 
-        if (!$session->isStarted()) {
+        if (!$session || !$session->isStarted()) {
             return;
         }
 

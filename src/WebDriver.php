@@ -46,7 +46,7 @@ class WebDriver extends CoreDriver
     /**
      * The WebDriver instance
      *
-     * @var RemoteWebDriver
+     * @var RemoteWebDriver|null
      */
     private $webDriver;
 
@@ -70,12 +70,12 @@ class WebDriver extends CoreDriver
     /**
      * Wd host
      *
-     * @var string
+     * @var string|null
      */
     private $wdHost;
 
     /**
-     * @var string
+     * @var string|null
      */
     private $rootWindow;
 
@@ -116,7 +116,7 @@ class WebDriver extends CoreDriver
      *
      * @param array $timeouts The session timeout settings: Array of {script, implicit, page} => time in milliseconds
      */
-    public function setTimeouts(array $timeouts)
+    public function setTimeouts(array $timeouts): void
     {
         // TODO: driver does not have getTimeouts
         $this->timeouts = $timeouts;
@@ -128,8 +128,10 @@ class WebDriver extends CoreDriver
 
     /**
      * Applies timeouts to the current session
+     *
+     * @return void
      */
-    private function applyTimeouts()
+    private function applyTimeouts(): void
     {
         // @see https://w3c.github.io/webdriver/#set-timeouts
         $timeouts = $this->webDriver->manage()->timeouts();
@@ -148,8 +150,10 @@ class WebDriver extends CoreDriver
      * Sets the browser name
      *
      * @param string $browserName the name of the browser to start, default is 'firefox'
+     *
+     * @return void
      */
-    protected function setBrowserName($browserName = 'firefox')
+    protected function setBrowserName($browserName = 'firefox'): void
     {
         $this->browserName = $browserName;
     }
@@ -163,8 +167,10 @@ class WebDriver extends CoreDriver
      * @param DesiredCapabilities|array|null $desiredCapabilities
      *
      * @throws DriverException
+     *
+     * @return void
      */
-    public function setDesiredCapabilities($desiredCapabilities = null)
+    public function setDesiredCapabilities($desiredCapabilities = null): void
     {
         if ($this->isStarted()) {
             throw new DriverException('Unable to set desiredCapabilities, the session has already started');
@@ -190,9 +196,9 @@ class WebDriver extends CoreDriver
     }
 
     /**
-     * @return WebDriver
+     * @return RemoteWebDriver|null
      */
-    public function getWebDriver()
+    public function getWebDriver(): ?RemoteWebDriver
     {
         return $this->webDriver;
     }
@@ -253,6 +259,8 @@ class WebDriver extends CoreDriver
 
     /**
      * {@inheritdoc}
+     *
+     * @return RemoteWebDriver|null
      */
     public function start()
     {
@@ -286,6 +294,8 @@ class WebDriver extends CoreDriver
 
     /**
      * {@inheritdoc}
+     *
+     * @return void
      */
     public function stop()
     {
@@ -303,6 +313,8 @@ class WebDriver extends CoreDriver
 
     /**
      * {@inheritdoc}
+     *
+     * @return void
      */
     public function reset()
     {
@@ -315,6 +327,8 @@ class WebDriver extends CoreDriver
 
     /**
      * {@inheritdoc}
+     *
+     * @return void
      */
     public function visit($url)
     {
@@ -335,6 +349,8 @@ class WebDriver extends CoreDriver
 
     /**
      * {@inheritdoc}
+     *
+     * @return void
      */
     public function reload()
     {
@@ -347,6 +363,8 @@ class WebDriver extends CoreDriver
 
     /**
      * {@inheritdoc}
+     *
+     * @return void
      */
     public function forward()
     {
@@ -355,6 +373,8 @@ class WebDriver extends CoreDriver
 
     /**
      * {@inheritdoc}
+     *
+     * @return void
      */
     public function back()
     {
@@ -363,6 +383,8 @@ class WebDriver extends CoreDriver
 
     /**
      * {@inheritdoc}
+     *
+     * @return void
      */
     public function switchToWindow($name = null)
     {
@@ -408,6 +430,8 @@ class WebDriver extends CoreDriver
 
     /**
      * {@inheritdoc}
+     *
+     * @return void
      */
     public function switchToIFrame($name = null)
     {
@@ -421,6 +445,8 @@ class WebDriver extends CoreDriver
 
     /**
      * {@inheritdoc}
+     *
+     * @return void
      */
     public function setCookie($name, $value = null)
     {
@@ -623,6 +649,8 @@ class WebDriver extends CoreDriver
 
     /**
      * {@inheritdoc}
+     *
+     * @return void
      */
     public function setValue($xpath, $value)
     {
@@ -712,6 +740,8 @@ EOF;
 
     /**
      * {@inheritdoc}
+     *
+     * @return void
      */
     public function check($xpath)
     {
@@ -727,6 +757,8 @@ EOF;
 
     /**
      * {@inheritdoc}
+     *
+     * @return void
      */
     public function uncheck($xpath)
     {
@@ -750,6 +782,8 @@ EOF;
 
     /**
      * {@inheritdoc}
+     *
+     * @return void
      */
     public function selectOption($xpath, $value, $multiple = false)
     {
@@ -792,6 +826,8 @@ EOF;
 
     /**
      * {@inheritdoc}
+     *
+     * @return void
      */
     public function click($xpath)
     {
@@ -803,8 +839,10 @@ EOF;
      * Attempt to ensure that the node is in the viewport.
      *
      * @param WebDriverElement $element
+     *
+     * @return void
      */
-    private function scrollElementIntoViewIfRequired(WebDriverElement $element)
+    private function scrollElementIntoViewIfRequired(WebDriverElement $element): void
     {
         $js = <<<EOF
     var node = {{ELEMENT}};
@@ -819,6 +857,9 @@ EOF;
         $this->executeJsOnElement($element, $js);
     }
 
+    /**
+     * @return void
+     */
     private function clickOnElement(WebDriverElement $element)
     {
         if ($this->browserName === 'firefox') {
@@ -856,6 +897,8 @@ EOF;
 
     /**
      * {@inheritdoc}
+     *
+     * @return void
      */
     public function doubleClick($xpath)
     {
@@ -865,6 +908,8 @@ EOF;
 
     /**
      * {@inheritdoc}
+     *
+     * @return void
      */
     public function rightClick($xpath)
     {
@@ -874,6 +919,8 @@ EOF;
 
     /**
      * {@inheritdoc}
+     *
+     * @return RemoteWebElement
      */
     public function attachFile($xpath, $path)
     {
@@ -895,6 +942,8 @@ EOF;
 
     /**
      * {@inheritdoc}
+     *
+     * @return void
      */
     public function mouseOver($xpath)
     {
@@ -902,13 +951,15 @@ EOF;
         $this->webDriver->action()->moveToElement($element)->perform();
     }
 
-    private function mouseOverElement(WebDriverElement $element)
+    private function mouseOverElement(WebDriverElement $element): void
     {
         $this->webDriver->action()->moveToElement($element)->perform();
     }
 
     /**
      * {@inheritdoc}
+     *
+     * @return void
      */
     public function focus($xpath)
     {
@@ -923,6 +974,8 @@ EOF;
 
     /**
      * {@inheritdoc}
+     *
+     * @return void
      */
     public function blur($xpath)
     {
@@ -934,6 +987,8 @@ EOF;
 
     /**
      * {@inheritdoc}
+     *
+     * @return void
      */
     public function keyPress($xpath, $char, $modifier = null)
     {
@@ -1004,6 +1059,8 @@ EOF;
 
     /**
      * {@inheritdoc}
+     *
+     * @return void
      */
     public function dragTo($sourceXpath, $destinationXpath)
     {
@@ -1017,6 +1074,8 @@ EOF;
 
     /**
      * {@inheritdoc}
+     *
+     * @return void
      */
     public function executeScript($script)
     {
@@ -1028,7 +1087,7 @@ EOF;
         $this->webDriver->executeScript($script);
     }
 
-    public function executeAsyncScript($script)
+    public function executeAsyncScript($script): void
     {
         if (preg_match('/^function[\s\(]/', $script)) {
             $script = preg_replace('/;$/', '', $script);
@@ -1078,6 +1137,8 @@ EOF;
 
     /**
      * {@inheritdoc}
+     *
+     * @return void
      */
     public function resizeWindow($width, $height, $name = null)
     {
@@ -1091,6 +1152,8 @@ EOF;
 
     /**
      * {@inheritdoc}
+     *
+     * @return void
      */
     public function submitForm($xpath)
     {
@@ -1100,6 +1163,8 @@ EOF;
 
     /**
      * {@inheritdoc}
+     *
+     * @return void
      */
     public function maximizeWindow($name = null)
     {
@@ -1143,8 +1208,10 @@ EOF;
      * @param string           $action
      *
      * @throws DriverException
+     *
+     * @return void
      */
-    private function ensureInputType(WebDriverElement $element, $xpath, $type, $action)
+    private function ensureInputType(WebDriverElement $element, $xpath, $type, $action): void
     {
         if ('input' !== strtolower($element->getTagName()) || $type !== strtolower($element->getAttribute('type'))) {
             $message = 'Impossible to %s the element with XPath "%s" as it is not a %s input';
@@ -1203,8 +1270,10 @@ EOF;
      * @param $xpath
      * @param $char
      * @param $modifier
+     *
+     * @return void
      */
-    private function sendKey($xpath, $char, $modifier)
+    private function sendKey($xpath, $char, $modifier): void
     {
         $element = $this->findElement($xpath);
         $char = $this->decodeChar($char);

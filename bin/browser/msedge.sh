@@ -6,7 +6,7 @@ MACHINE_FAMILY=$1
 DRIVER_VERSION=$2
 
 if [[ "$DRIVER_VERSION" == "latest" ]]; then
-    DRIVER_VERSION=$(curl -sS https://msedgewebdriverstorage.blob.core.windows.net/edgewebdriver/LATEST_STABLE -o - | cut -b3-23)
+    DRIVER_VERSION=$(curl -sS https://msedgewebdriverstorage.blob.core.windows.net/edgewebdriver/LATEST_STABLE -o - | cut -b3- | sed 's/\r//' )
 fi
 
 mkdir -p msedgedriver

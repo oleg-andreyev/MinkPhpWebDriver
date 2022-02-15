@@ -9,7 +9,7 @@ use OAndreyev\Mink\Driver\WebDriver;
 
 class DesiredCapabilitiesTest extends TestCase
 {
-    public function testGetDesiredCapabilities()
+    public function testGetDesiredCapabilities(): void
     {
         $expectedCaps = array(
             'browserName'       => 'firefox',
@@ -32,7 +32,7 @@ class DesiredCapabilitiesTest extends TestCase
         }
     }
 
-    public function testSetDesiredCapabilities()
+    public function testSetDesiredCapabilities(): void
     {
         $this->expectException(DriverException::class);
         $this->expectExceptionMessage('Unable to set desiredCapabilities, the session has already started');

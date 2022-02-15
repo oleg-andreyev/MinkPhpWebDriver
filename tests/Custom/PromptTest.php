@@ -7,7 +7,7 @@ use OAndreyev\Mink\Driver\WebDriver;
 
 class PromptTest extends TestCase
 {
-    public function testPromptSendKeysAndAccept()
+    public function testPromptSendKeysAndAccept(): void
     {
         $session = $this->getSession();
         $session->visit($this->pathTo('/prompt.html'));
@@ -25,7 +25,7 @@ class PromptTest extends TestCase
         self::assertEquals('Prompt Result: yes', $element->getText());
     }
 
-    public function testPromptDismiss()
+    public function testPromptDismiss(): void
     {
         $session = $this->getSession();
         $session->visit($this->pathTo('/prompt.html'));
