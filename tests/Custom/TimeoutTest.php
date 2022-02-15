@@ -11,8 +11,6 @@ use Symfony\Bridge\PhpUnit\SetUpTearDownTrait;
 
 class TimeoutTest extends TestCase
 {
-    use SetUpTearDownTrait, OnNotSuccessfulTrait;
-
     /** @var Session */
     private $session;
 
