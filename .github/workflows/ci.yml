@@ -35,7 +35,7 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Setup PHP
-        uses: shivammathur/setup-php@2.12.0
+        uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ matrix.php }}
           coverage: none
@@ -47,7 +47,7 @@ jobs:
         run: echo "::set-output name=directory::$(composer config cache-dir)"
 
       - name: Cache composer dependencies
-        uses: actions/cache@v2.1.6
+        uses: actions/cache@v2
         with:
           path: ${{ steps.composer-cache.outputs.directory }}
           key: ${{ matrix.php }}-composer-${{ hashFiles('**/composer.lock') }}
@@ -65,10 +65,8 @@ jobs:
           echo "::group::composer update"
           composer update --no-interaction --prefer-dist
           echo "::endgroup::"
-
-          echo "::group::composer require symfony/phpunit-bridge"
-          composer require symfony/phpunit-bridge
-          echo "::endgroup::"
+          
+          mkdir -p ./logs
 
       - name: Start ChromeDriver
         if: ${{ matrix.browser == 'chrome' }}
