@@ -4,10 +4,8 @@ namespace OAndreyev\Mink\Tests\Driver\Custom;
 
 use Behat\Mink\Exception\DriverException;
 use Behat\Mink\Session;
-use Behat\Mink\Tests\Driver\OnNotSuccessfulTrait;
 use Behat\Mink\Tests\Driver\TestCase;
 use OAndreyev\Mink\Driver\WebDriver;
-use Symfony\Bridge\PhpUnit\SetUpTearDownTrait;
 
 class TimeoutTest extends TestCase
 {
@@ -17,9 +15,9 @@ class TimeoutTest extends TestCase
     /** @var WebDriver */
     private $driver;
 
-    protected function doSetUp()
+    protected function setUp():void
     {
-        parent::doSetUp();
+        parent::setUp();
         $this->session = $this->getSession();
         $this->driver = $this->session->getDriver();
     }
