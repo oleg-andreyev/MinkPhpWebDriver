@@ -16,15 +16,20 @@ defaults:
 
 jobs:
   tests:
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
         php: [ 7.2, 7.3, 7.4, 8.0, 8.1 ]
         browser: [ chrome, firefox ]
         experimental: [false]
+        os: ['ubuntu-latest']
+        include:
+          - { browser: 'safari', os: 'macos-latest', php: 8.1 }
+
     continue-on-error: ${{ matrix.experimental }}
     timeout-minutes: 10
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
@@ -62,15 +67,24 @@ jobs:
           composer require symfony/phpunit-bridge
           echo "::endgroup::"
 
-      - name: Start webdriver
-        shell: bash
+      - name: Start ChromeDriver
+        if: ${{ matrix.browser == 'chrome' }}
         run: |
-          mkdir -p ./logs
-          if [[ "${{ matrix.browser }}" == "chrome" ]]; then
-            xvfb-run --auto-servernum $CHROMEWEBDRIVER/chromedriver --port=4444 --verbose --whitelisted-ips=  &> ./logs/webdriver.log &
-          else
-            xvfb-run --auto-servernum $GECKOWEBDRIVER/geckodriver --host 127.0.0.1 -vv --port 4444 &>./logs/webdriver.log &
-          fi;
+          google-chrome --version
+          xvfb-run --server-args="-screen 0, 1280x720x24" --auto-servernum $CHROMEWEBDRIVER/chromedriver --port=4444 --verbose --whitelisted-ips=  &> ./logs/webdriver.log &
+
+      - name: Start GeckoDriver
+        if: ${{ matrix.browser == 'firefox' }}
+        run: |
+          firefox --version
+          geckodriver --version
+          xvfb-run --server-args="-screen 0, 1280x720x24" --auto-servernum $GECKOWEBDRIVER/geckodriver --host 127.0.0.1 -vv --port 4444 &>./logs/webdriver.log &
+
+      - name: Start SafariDriver
+        if: ${{ matrix.browser == 'safari' }}
+        run: |
+          defaults read /Applications/Safari.app/Contents/Info CFBundleShortVersionString
+          xvfb-run --server-args="-screen 0, 1280x720x24" --auto-servernum /usr/bin/safaridriver -p 4444 --diagnose &>./logs/webdriver.log &
 
       - name: Start webserver
         shell: bash
@@ -85,8 +99,9 @@ jobs:
           while ! nc -z localhost 8002 </dev/null; do echo Waiting for PHP server to start...; sleep 1; done
 
       - name: Run tests
+        env:
+          BROWSER_NAME: ${{ matrix.browser }}
         run: |
-          export BROWSER_NAME="${{ matrix.browser }}"
           ./vendor/bin/phpunit -v
 
       - name: Archive logs artifacts
