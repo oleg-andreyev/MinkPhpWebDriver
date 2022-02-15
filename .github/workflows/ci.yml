@@ -54,7 +54,7 @@ jobs:
           restore-keys: ${{ matrix.php }}-composer-
 
       - name: Install xvfb
-        if: ${{ matrix.os != 'safari' }}
+        if: ${{ matrix.os != 'macos-latest' }}
         run: |
           echo "::group::apt-get install"
           sudo apt-get install xvfb
