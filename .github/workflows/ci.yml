@@ -86,7 +86,7 @@ jobs:
       - name: Run tests
         run: |
           export BROWSER_NAME="${{ matrix.browser }}"
-          ./vendor/bin/simple-phpunit -v
+          ./vendor/bin/phpunit -v
 
       - name: Archive logs artifacts
         if: ${{ failure() }}
