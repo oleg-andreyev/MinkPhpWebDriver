@@ -36,7 +36,7 @@
         "roave/security-advisories": "dev-master",
         "mink/driver-testsuite": "dev-integration-branch",
         "behat/mink-extension": "^2.3",
-        "symfony/phpunit-bridge": "^5.2"
+        "symfony/phpunit-bridge": "^6.1"
     },
     "autoload": {
         "psr-4": {
