@@ -19,7 +19,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: ubuntu-latest
+        os: [ubuntu-latest]
         php: [ 7.4, 8.0, 8.1 ]
         browser: [ chrome, firefox ]
         experimental: [false]
