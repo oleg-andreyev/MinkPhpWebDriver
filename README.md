@@ -5,14 +5,14 @@ Initially it's started as [PR](https://github.com/minkphp/MinkSelenium2Driver/pu
 
 Major updates include:
  - Switch to using `facebook/webdriver`
- - Update minimum php version to 7.2
+ - Update minimum php version to 7.4
  - Tested against the latest Google Chrome and Mozilla Firefox both in GUI and Headless modes
 
 ## Setup
 
 Install via `oleg-andreyev/mink-phpwebdriver-extension`
 ```bash
-$ composer require --dev oleg-andreyev/mink-phpwebdriver-extension
+composer require --dev oleg-andreyev/mink-phpwebdriver-extension
 ```
 
 Add this extension to your `behat.yml` (see below)
@@ -31,14 +31,17 @@ default:
 ## Testing
 
 ```bash
-$ ./bin/start_webdriver.sh &
-#./bin/start_driver.sh <browser> <version>
-$ ./bin/start_driver.sh chrome latest &
-$ BROWSER_NAME=chrome ./vendor/bin/simple-phpunit
+./bin/start_webdriver.sh &
+# ./bin/start_driver.sh <browser> <version>
+./bin/start_driver.sh chrome latest &
+BROWSER_NAME=chrome ./vendor/bin/simple-phpunit
 ```
 
 This will download the latest driver for specified browser and will execute phpunit
 
+## Running GitHub Acton locally
+Follow https://github.com/shivammathur/setup-php#local-testing-setup
+
 ## Copyright
 
-Copyright (c) 2019 Oleg Andreyev <oleg@andreyev.lv>
+Copyright (c) 2022 Oleg Andreyev <oleg@andreyev.lv>.
