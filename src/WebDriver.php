@@ -366,7 +366,7 @@ class WebDriver extends CoreDriver
      */
     public function switchToWindow($name = null)
     {
-        if ($this->browserName === 'firefox') {
+        if ($this->browserName === 'firefox' || $this->browserName === 'safari') {
             // Firefox stores window IDs rather than window names and does not provide a working way to map the ids to
             // names.
             // Each time we switch to a window, we fetch the list of window IDs, and attempt to map them.

@@ -20,6 +20,9 @@ https://github.com/oleg-andreyev/MinkPhpWebdriverExtension
 
 ## Testing
 
+### Safari
+You must enable the 'Allow Remote Automation' option in Safari's Develop menu to control Safari via WebDriver.
+
 ```bash
 ./bin/start_webdriver.sh &
 # ./bin/start_driver.sh <browser> <version>
