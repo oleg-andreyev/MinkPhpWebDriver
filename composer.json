@@ -29,15 +29,15 @@
     "require": {
         "php": ">=7.2",
         "behat/mink": "^1.8",
-        "php-webdriver/webdriver": "^1.8",
-        "bamarni/composer-bin-plugin": "^1.8"
+        "php-webdriver/webdriver": "^1.8"
     },
     "require-dev": {
         "ext-json": "*",
         "roave/security-advisories": "dev-master",
         "mink/driver-testsuite": "dev-integration-branch",
         "behat/mink-extension": "^2.3",
-        "symfony/phpunit-bridge": "^4.4 || ^5.4 || ^6.0"
+        "symfony/phpunit-bridge": "^4.4 || ^5.4 || ^6.0",
+        "bamarni/composer-bin-plugin": "^1.8"
     },
     "scripts": {
         "bin": "echo 'bin not installed'",
