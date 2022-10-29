@@ -10,24 +10,14 @@ Major updates include:
 
 ## Setup
 
-Install via `oleg-andreyev/mink-phpwebdriver-extension`
+Install `oleg-andreyev/mink-phpwebdriver`
 ```bash
-composer require --dev oleg-andreyev/mink-phpwebdriver-extension
+composer require oleg-andreyev/mink-phpwebdriver
 ```
 
-Add this extension to your `behat.yml` (see below)
+## Behat Extension 
+https://github.com/oleg-andreyev/MinkPhpWebdriverExtension
 
-- Set the wd_host to this server instead 
-```yaml
-default:
-    extensions:
-        OAndreyev\MinkPhpWebdriverExtension: ~
-        Behat\MinkExtension:
-            default_session: webdriver
-            webdriver:
-                wd_host: "http://0.0.0.0:4444/wd/hub"
-                browser: 'chrome'
-```
 ## Testing
 
 ```bash
