@@ -64,7 +64,7 @@ class ScreenshotListener implements TestListener
                 /** @var TestCase $this */
                 return $this->getSession();
             }, $test, $test)();
-        } catch (\Throwable) {
+        } catch (\Throwable $e) {
             return;
         }
 
