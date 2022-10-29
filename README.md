@@ -44,5 +44,4 @@ Follow https://github.com/shivammathur/setup-php#local-testing-setup
 
 ## Copyright
 
-Copyright (c) 2022 Oleg Andreyev <oleg@andreyev.lv>.
-
+Copyright (c) 2022 Oleg Andreyev <oleg@andreyev.lv>
