@@ -18,9 +18,11 @@ class TimeoutTest extends TestCase
     /** @var WebDriver */
     private $driver;
 
-    protected function doSetUp()
+    /**
+     * @before
+     */
+    protected function before()
     {
-        parent::doSetUp();
         $this->session = $this->getSession();
         $this->driver = $this->session->getDriver();
     }
