@@ -4,6 +4,7 @@ namespace OAndreyev\Mink\Tests\Driver;
 
 use Behat\Mink\Session;
 use Behat\Mink\Tests\Driver\TestCase;
+use Behat\Mink\Tests\Driver\Util\TestCaseInvalidStateException;
 use PHPUnit\Framework\AssertionFailedError;
 use PHPUnit\Framework\Test;
 use PHPUnit\Framework\TestListener;
@@ -57,11 +58,15 @@ class ScreenshotListener implements TestListener
 
     private function makeScreenshot(Test $test): void
     {
-        /** @var Session $session */
-        $session = \Closure::bind(function () {
-            /** @var TestCase $this */
-            return $this->getSession();
-        }, $test, $test)();
+        try {
+            /** @var Session $session */
+            $session = \Closure::bind(function () {
+                /** @var TestCase $this */
+                return $this->getSession();
+            }, $test, $test)();
+        } catch (\Throwable) {
+            return;
+        }
 
         if (!$session->isStarted()) {
             return;
