@@ -84,12 +84,7 @@ class TimeoutTest extends TestCase
 
     public function testScriptTimeout()
     {
-        if (getenv('BROWSER_NAME') === 'safari') {
-            $this->expectException(TimeoutException::class);
-        } else {
-            $this->expectException(DriverException::class);
-        }
-
+        $this->expectException(DriverException::class);
         $this->driver->setTimeouts(array('script' => 1));
         $this->session->visit($this->pathTo('/js_test.html'));
         usleep(1_000_000);

@@ -1037,7 +1037,7 @@ EOF;
 
         try {
             $this->webDriver->executeAsyncScript($script);
-        } catch (ScriptTimeoutException $e) {
+        } catch (ScriptTimeoutException|TimeoutException $e) {
             throw new DriverException($e->getMessage(), $e->getCode(), $e);
         }
     }
