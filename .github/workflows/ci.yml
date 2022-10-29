@@ -31,6 +31,7 @@ jobs:
           - php: 8.1
             experimental: true
             browser: firefox
+            os: macos-latest
           - php: 8.1
             experimental: true
             browser: safari
