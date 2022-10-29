@@ -75,6 +75,8 @@ jobs:
           else
             xvfb-run --auto-servernum $GECKOWEBDRIVER/geckodriver --host 127.0.0.1 -vv --port 4444 &>./logs/webdriver.log &
           fi;
+          
+          while ! nc -z localhost 4444 </dev/null; do echo Waiting for driver to start...; sleep 1; done
 
       - name: Start webserver
         shell: bash
