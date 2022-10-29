@@ -6,3 +6,4 @@ chromedriver/
 geckodriver/
 msedgedriver/
 logs/
+vendor-bin/**/vendor/

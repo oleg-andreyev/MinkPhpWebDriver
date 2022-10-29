@@ -61,6 +61,7 @@ class WebDriverConfig extends AbstractConfig
                 }
                 $optionsOrProfile = $this->buildChromeOptions($desiredCapabilities, $optionsOrProfile, $driverOptions);
             } else if ($browser === 'firefox') {
+                $optionsOrProfile = new FirefoxProfile();
                 $optionsOrProfile = $this->buildFirefoxProfile($desiredCapabilities, $optionsOrProfile, $driverOptions);
             }
 

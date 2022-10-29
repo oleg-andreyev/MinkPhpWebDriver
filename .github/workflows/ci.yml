@@ -20,21 +20,21 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        php: [ 7.2, 7.3, 7.4, 8.0 ]
+        php: [ 7.4, 8.0, 8.1 ]
         browser: [ chrome, firefox ]
         experimental: [false]
         include:
-          - php: 8.1
+          - php: 8.2
             experimental: true
             browser: chrome
     continue-on-error: ${{ matrix.experimental }}
     timeout-minutes: 10
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Setup PHP
-        uses: shivammathur/setup-php@2.12.0
+        uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ matrix.php }}
           coverage: none
@@ -46,7 +46,7 @@ jobs:
         run: echo "::set-output name=directory::$(composer config cache-dir)"
 
       - name: Cache composer dependencies
-        uses: actions/cache@v2.1.6
+        uses: actions/cache@v3
         with:
           path: ${{ steps.composer-cache.outputs.directory }}
           key: ${{ matrix.php }}-composer-${{ hashFiles('**/composer.lock') }}
@@ -75,6 +75,8 @@ jobs:
           else
             xvfb-run --auto-servernum $GECKOWEBDRIVER/geckodriver --host 127.0.0.1 -vv --port 4444 &>./logs/webdriver.log &
           fi;
+          
+          while ! nc -z localhost 4444 </dev/null; do echo Waiting for driver to start...; sleep 1; done
 
       - name: Start webserver
         shell: bash
@@ -84,13 +86,15 @@ jobs:
           php -S localhost:8002 -t ./vendor/mink/driver-testsuite/web-fixtures &> ./logs/mink-test-server.log &
 
       - name: Run tests
+        env:
+          SYMFONY_DEPRECATIONS_HELPER: 'max[total]=999999'
+          BROWSER_NAME: ${{ matrix.browser }}
         run: |
-          export BROWSER_NAME="${{ matrix.browser }}"
           ./vendor/bin/simple-phpunit -v
 
       - name: Archive logs artifacts
         if: ${{ failure() }}
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: logs_browser-${{ matrix.browser }}_php-${{ matrix.php }}
           path: |
