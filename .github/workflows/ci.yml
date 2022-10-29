@@ -84,8 +84,10 @@ jobs:
           php -S localhost:8002 -t ./vendor/mink/driver-testsuite/web-fixtures &> ./logs/mink-test-server.log &
 
       - name: Run tests
+        env:
+          SYMFONY_DEPRECATIONS_HELPER: 'max[total]=999999'
+          BROWSER_NAME: ${{ matrix.browser }}
         run: |
-          export BROWSER_NAME="${{ matrix.browser }}"
           ./vendor/bin/simple-phpunit -v
 
       - name: Archive logs artifacts
