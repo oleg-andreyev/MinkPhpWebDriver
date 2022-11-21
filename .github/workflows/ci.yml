@@ -28,7 +28,7 @@ jobs:
             experimental: true
             browser: chrome
     continue-on-error: ${{ matrix.experimental }}
-    timeout-minutes: 2
+    timeout-minutes: 5
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
