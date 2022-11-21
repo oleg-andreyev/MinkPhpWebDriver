@@ -66,8 +66,14 @@ jobs:
           composer require symfony/phpunit-bridge
           echo "::endgroup::"
 
+      - uses: browser-actions/setup-chrome@latest
+        if: matrix.browser == 'chrome'
+
+      - uses: browser-actions/setup-firefox@latest
+        if: matrix.browser == 'firefox'
+
       - name: Start ChromeDriver
-        if: ${{ !matrix.selenium-server && matrix.browser == 'chrome' }}
+        if: ${{ matrix.browser == 'chrome' }}
         run: |
           google-chrome --version
           xvfb-run --server-args="-screen 0, 1280x720x24" --auto-servernum \
@@ -76,7 +82,7 @@ jobs:
           while ! nc -z localhost 4444 </dev/null; do echo Waiting for driver to start...; sleep 1; done
 
       - name: Start GeckoDriver
-        if: ${{ !matrix.selenium-server && matrix.browser == 'firefox' }}
+        if: ${{ matrix.browser == 'firefox' }}
         run: |
           firefox --version
           geckodriver --version
