@@ -109,6 +109,14 @@ jobs:
           
           while ! nc -z localhost 4444 </dev/null; do echo Waiting for driver to start...; sleep 1; done
 
+      - name: Start SafariDriver
+        if: ${{ matrix.browser == 'safari' }}
+        run: |
+          xvfb-run --server-args="-screen 0, 1280x720x24" --auto-servernum \
+            safaridriver --port=4444 --diagnose &
+          
+          while ! nc -z localhost 4444 </dev/null; do echo Waiting for driver to start...; sleep 1; done
+
       - name: Start webserver
         shell: bash
         run: |
@@ -127,5 +135,4 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: logs_browser-${{ matrix.os }}-${{ matrix.browser }}_php-${{ matrix.php }}
-          path: |
-            logs
+          path: logs
