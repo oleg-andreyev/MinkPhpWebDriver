@@ -80,7 +80,6 @@ jobs:
       - name: Start ChromeDriver
         if: ${{ matrix.browser == 'chrome' }}
         run: |
-          google-chrome --version
           xvfb-run --server-args="-screen 0, 1280x720x24" --auto-servernum \
             chromedriver --port=4444 --verbose --whitelisted-ips= &> ./logs/chromedriver.log &
           
@@ -89,8 +88,6 @@ jobs:
       - name: Start GeckoDriver
         if: ${{ matrix.browser == 'firefox' }}
         run: |
-          firefox --version
-          geckodriver --version
           xvfb-run --server-args="-screen 0, 1280x720x24" --auto-servernum \
             geckodriver --host 127.0.0.1 -vv --port 4444 &> ./logs/geckodriver.log &
           
