@@ -72,6 +72,9 @@ jobs:
       - uses: browser-actions/setup-firefox@latest
         if: matrix.browser == 'firefox'
 
+      - uses: browser-actions/setup-geckodriver@latest
+        if: matrix.browser == 'firefox'
+
       - name: Start ChromeDriver
         if: ${{ matrix.browser == 'chrome' }}
         run: |
