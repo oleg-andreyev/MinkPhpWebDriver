@@ -66,17 +66,22 @@ jobs:
           composer require symfony/phpunit-bridge
           echo "::endgroup::"
 
-      - name: Start webdriver
-        shell: bash
+      - name: Start ChromeDriver
+        if: ${{ !matrix.selenium-server && matrix.browser == 'chrome' }}
         run: |
-          mkdir -p ./logs
-          if [[ "${{ matrix.browser }}" == "chrome" ]]; then
-            which chromedriver
-            xvfb-run --auto-servernum chromedriver --port=4444 --verbose --whitelisted-ips=  &> ./logs/webdriver.log &
-          else
-            which geckodriver
-            xvfb-run --auto-servernum geckodriver --host 127.0.0.1 -vv --port 4444 &>./logs/webdriver.log &
-          fi;
+          google-chrome --version
+          xvfb-run --server-args="-screen 0, 1280x720x24" --auto-servernum \
+            chromedriver --port=4444 --verbose --whitelisted-ips= &> ./logs/chromedriver.log &
+          
+          while ! nc -z localhost 4444 </dev/null; do echo Waiting for driver to start...; sleep 1; done
+
+      - name: Start GeckoDriver
+        if: ${{ !matrix.selenium-server && matrix.browser == 'firefox' }}
+        run: |
+          firefox --version
+          geckodriver --version
+          xvfb-run --server-args="-screen 0, 1280x720x24" --auto-servernum \
+            geckodriver --host 127.0.0.1 -vv --port 4444 &> ./logs/geckodriver.log &
           
           while ! nc -z localhost 4444 </dev/null; do echo Waiting for driver to start...; sleep 1; done
 
