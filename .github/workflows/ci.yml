@@ -54,6 +54,8 @@ jobs:
 
       - name: Install dependencies
         run: |
+          mkdir -p ./logs
+          
           echo "::group::apt-get install"
           sudo apt-get install xvfb
           echo "::endgroup::"
@@ -98,7 +100,6 @@ jobs:
         shell: bash
         run: |
           export USE_ZEND_ALLOC=0
-          mkdir -p ./logs
           php -S localhost:8002 -t ./vendor/mink/driver-testsuite/web-fixtures &> ./logs/mink-test-server.log &
 
       - name: Run tests
