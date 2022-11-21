@@ -93,7 +93,7 @@ jobs:
           ./vendor/bin/simple-phpunit -v
 
       - name: Archive logs artifacts
-        if: ${{ failure() }}
+        if: ${{ always() }}
         uses: actions/upload-artifact@v3
         with:
           name: logs_browser-${{ matrix.browser }}_php-${{ matrix.php }}
