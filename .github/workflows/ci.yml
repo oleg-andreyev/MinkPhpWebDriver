@@ -96,7 +96,12 @@ jobs:
       - name: Start ChromeDriver
         if: ${{ matrix.browser == 'chrome' }}
         run: |
-          xvfb-run --server-args="-screen 0, 1280x720x24" --auto-servernum \
+          XVFB='xvfb-run --server-args="-screen 0, 1280x720x24" --auto-servernum'
+          if [[ "${{ matrix.os }}" == "macos-latest" ]]; then
+            XVFB=''
+          fi;
+          
+          $XVFB \
             chromedriver --port=4444 --verbose --whitelisted-ips= &> ./logs/chromedriver.log &
           
           while ! nc -z localhost 4444 </dev/null; do echo Waiting for driver to start...; sleep 1; done
@@ -104,7 +109,12 @@ jobs:
       - name: Start GeckoDriver
         if: ${{ matrix.browser == 'firefox' }}
         run: |
-          xvfb-run --server-args="-screen 0, 1280x720x24" --auto-servernum \
+          XVFB='xvfb-run --server-args="-screen 0, 1280x720x24" --auto-servernum'
+          if [[ "${{ matrix.os }}" == "macos-latest" ]]; then
+            XVFB=''
+          fi;
+          
+          $XVFB \
             geckodriver --host 127.0.0.1 -vv --port 4444 &> ./logs/geckodriver.log &
           
           while ! nc -z localhost 4444 </dev/null; do echo Waiting for driver to start...; sleep 1; done
@@ -112,8 +122,8 @@ jobs:
       - name: Start SafariDriver
         if: ${{ matrix.browser == 'safari' }}
         run: |
-          xvfb-run --server-args="-screen 0, 1280x720x24" --auto-servernum \
-            safaridriver --port=4444 --diagnose &
+          defaults read /Applications/Safari.app/Contents/Info CFBundleShortVersionString
+          /usr/bin/safaridriver -p 4444 --diagnose &
           
           while ! nc -z localhost 4444 </dev/null; do echo Waiting for driver to start...; sleep 1; done
 
