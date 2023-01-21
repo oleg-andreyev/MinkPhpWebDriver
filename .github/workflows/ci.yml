@@ -96,7 +96,7 @@ jobs:
       - name: Start ChromeDriver
         if: ${{ matrix.browser == 'chrome' }}
         run: |
-          XVFB='xvfb-run --server-args="-screen 0, 1280x720x24" --auto-servernum'
+          XVFB="xvfb-run --server-args='-screen 0, 1280x720x24' --auto-servernum"
           if [[ "${{ matrix.os }}" == "macos-latest" ]]; then
             XVFB=''
           fi;
@@ -109,7 +109,7 @@ jobs:
       - name: Start GeckoDriver
         if: ${{ matrix.browser == 'firefox' }}
         run: |
-          XVFB='xvfb-run --server-args="-screen 0, 1280x720x24" --auto-servernum'
+          XVFB="xvfb-run --server-args='-screen 0, 1280x720x24' --auto-servernum"
           if [[ "${{ matrix.os }}" == "macos-latest" ]]; then
             XVFB=''
           fi;
