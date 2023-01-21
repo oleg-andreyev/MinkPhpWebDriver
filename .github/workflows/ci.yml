@@ -136,11 +136,7 @@ jobs:
           SYMFONY_DEPRECATIONS_HELPER: 'max[total]=999999'
           BROWSER_NAME: ${{ matrix.browser }}
         run: |
-          if [[ "${{ matrix.os }}" == "macos-latest" ]]; then
-            ./vendor/bin/simple-phpunit --debug --default-time-limit 10 --process-isolation
-          else
-            ./vendor/bin/simple-phpunit --debug
-          fi;
+          ./vendor/bin/simple-phpunit --testdox
 
       - name: Archive logs artifacts
         if: ${{ always() }}
