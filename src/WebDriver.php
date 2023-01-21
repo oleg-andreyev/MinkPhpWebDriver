@@ -261,7 +261,22 @@ class WebDriver extends CoreDriver
         }
 
         try {
-            $this->webDriver = RemoteWebDriver::create($this->wdHost, $this->desiredCapabilities);
+            $this->webDriver = RemoteWebDriver::create(
+                $this->wdHost,
+                $this->desiredCapabilities,
+
+                // atm I think it's best value for connection timeout
+                // if something takes more than 5s to connect
+                // something is wrong on infrastructure-level you need to fix it
+                // otherwise this technical depth will grow
+                5000,
+
+                // atm I think it's best value for connection timeout
+                // if something takes more than 10s to connect
+                // something is wrong on infrastructure-level you need to fix it
+                // otherwise this technical depth will grow
+                10000
+            );
             if (\count($this->timeouts)) {
                 $this->applyTimeouts();
             }
