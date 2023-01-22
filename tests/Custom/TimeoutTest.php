@@ -48,6 +48,10 @@ class TimeoutTest extends TestCase
 
     public function testShortTimeoutDoesNotWaitForElementToAppear()
     {
+        if (getenv('BROWSER_NAME') === 'safari') {
+            $this->markTestSkipped('\OAndreyev\Mink\Tests\Driver\Custom\TimeoutTest::testShortTimeoutDoesNotWaitForElementToAppear is skipped due to Safari hangs');
+        }
+
         $this->driver->setTimeouts(array('implicit' => 0));
 
         $this->session->visit($this->pathTo('/js_test.html'));

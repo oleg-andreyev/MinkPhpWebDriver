@@ -7,3 +7,5 @@ geckodriver/
 msedgedriver/
 logs/
 vendor-bin/**/vendor/
+.idea/
+.phpunit.result.cache
