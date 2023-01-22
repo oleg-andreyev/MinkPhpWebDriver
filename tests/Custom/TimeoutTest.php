@@ -37,6 +37,10 @@ class TimeoutTest extends TestCase
 
     public function testInvalidTimeoutSettingThrowsException()
     {
+        if (getenv('BROWSER_NAME') === 'safari') {
+            $this->markTestSkipped('\OAndreyev\Mink\Tests\Driver\Custom\TimeoutTest::testInvalidTimeoutSettingThrowsException is skipped due to Safari hangs');
+        }
+
         $this->expectException(DriverException::class);
         $this->session->start();
         $this->driver->setTimeouts(array('invalid' => 0));
