@@ -9,6 +9,7 @@ on:
 env:
   DRIVER_URL: "http://localhost:4444"
   WEB_FIXTURES_HOST: "http://localhost:8002"
+  USE_SAFARI_TECHNOLOGY_PREVIEW: false
 
 defaults:
   run:
@@ -36,6 +37,12 @@ jobs:
             experimental: true
             browser: safari
             os: macos-latest
+          - php: 8.1
+            experimental: true
+            browser: safari
+            os: macos-latest
+            env:
+              USE_SAFARI_TECHNOLOGY_PREVIEW: true
           - php: 8.2
             experimental: true
             browser: chrome

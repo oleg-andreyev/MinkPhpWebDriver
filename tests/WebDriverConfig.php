@@ -43,6 +43,8 @@ class WebDriverConfig extends AbstractConfig
             if ($browser === 'msedge') {
                 $desiredCapabilities->setBrowserName('msedge');
             }
+        } else if ($browser === 'safari') {
+            $desiredCapabilities = DesiredCapabilities::safari();
         } else {
             $desiredCapabilities = new DesiredCapabilities();
         }
@@ -51,6 +53,7 @@ class WebDriverConfig extends AbstractConfig
             'firefox' => FirefoxDriver::PROFILE,
             'chrome' => ChromeOptions::CAPABILITY_W3C,
             'msedge' => ChromeOptions::CAPABILITY_W3C,
+            'safari' => 'safari.options'
         ];
 
         if (isset($capabilityMap[$browser])) {
@@ -63,13 +66,16 @@ class WebDriverConfig extends AbstractConfig
             } else if ($browser === 'firefox') {
                 $optionsOrProfile = new FirefoxProfile();
                 $optionsOrProfile = $this->buildFirefoxProfile($desiredCapabilities, $optionsOrProfile, $driverOptions);
+            } else if ($browser === 'safari') {
+                $optionsOrProfile = [
+                    'technologyPreview' => $_ENV['USE_SAFARI_TECHNOLOGY_PREVIEW'] ?? false,
+                ];
             }
 
             $desiredCapabilities->setCapability($capabilityMap[$browser], $optionsOrProfile);
         }
 
-        $driver = new WebDriver($browser, [], $seleniumHost);
-        $driver->setDesiredCapabilities($desiredCapabilities);
+        $driver = new WebDriver($browser, $desiredCapabilities, $seleniumHost);
 
         // https://developer.mozilla.org/en-US/docs/Web/WebDriver/Commands/SetTimeouts
         $driver->setTimeouts(array('implicit' => 0, 'pageLoad' => 300000, 'script' => 30000));

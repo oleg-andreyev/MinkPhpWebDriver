@@ -45,15 +45,9 @@ class WebDriver extends CoreDriver
 
     private ?RemoteWebDriver $webDriver = null;
 
-    /**
-     * @var string
-     */
-    private $browserName;
+    private string $browserName;
 
-    /**
-     * @var DesiredCapabilities|null
-     */
-    private $desiredCapabilities;
+    private ?DesiredCapabilities $desiredCapabilities = null;
 
     /**
      * The timeout configuration
@@ -82,12 +76,15 @@ class WebDriver extends CoreDriver
     /**
      * Instantiates the driver.
      *
-     * @param string $browserName         Browser name
-     * @param array  $desiredCapabilities The desired capabilities
-     * @param string $wdHost              The WebDriver host
+     * @param string     $browserName         Browser name
+     * @param array|null $desiredCapabilities The desired capabilities
+     * @param string     $wdHost              The WebDriver host
      */
-    public function __construct($browserName = 'firefox', $desiredCapabilities = null, $wdHost = 'http://localhost:4444/wd/hub')
-    {
+    public function __construct(
+        string $browserName = 'firefox',
+        $desiredCapabilities = null,
+        string $wdHost = 'http://localhost:4444/wd/hub'
+    ) {
         $this->wdHost = $wdHost;
         $this->browserName = $browserName;
 
@@ -95,6 +92,8 @@ class WebDriver extends CoreDriver
             $this->desiredCapabilities = DesiredCapabilities::firefox();
         } else if ($browserName === 'chrome') {
             $this->desiredCapabilities = DesiredCapabilities::chrome();
+        } else if ($browserName === 'safari') {
+            $this->desiredCapabilities = DesiredCapabilities::safari();
         } else {
             $this->desiredCapabilities = new DesiredCapabilities();
         }

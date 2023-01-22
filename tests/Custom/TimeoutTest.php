@@ -76,7 +76,7 @@ class TimeoutTest extends TestCase
     {
         $this->expectException(DriverException::class);
         $this->session->visit($this->pathTo('/page_load.php'));
-        usleep(1_000_000);
+        sleep(1);
         $this->assertStringContainsString('success', $this->session->getPage()->getContent());
         $this->driver->setTimeouts(array('pageLoad' => 1));
         $this->session->visit($this->pathTo('/page_load.php?sleep=2'));
@@ -87,7 +87,7 @@ class TimeoutTest extends TestCase
         $this->expectException(DriverException::class);
         $this->driver->setTimeouts(array('script' => 1));
         $this->session->visit($this->pathTo('/js_test.html'));
-        usleep(1_000_000);
+        sleep(1);
 
         // @see https://w3c.github.io/webdriver/#execute-async-script
         $this->driver->executeAsyncScript(
