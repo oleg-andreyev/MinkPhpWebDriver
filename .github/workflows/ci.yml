@@ -9,7 +9,7 @@ on:
 env:
   DRIVER_URL: "http://localhost:4444"
   WEB_FIXTURES_HOST: "http://localhost:8002"
-  USE_SAFARI_TECHNOLOGY_PREVIEW: false
+  USE_SAFARI_TECHNOLOGY_PREVIEW: "false"
 
 defaults:
   run:
@@ -42,7 +42,7 @@ jobs:
             browser: safari
             os: macos-latest
             env:
-              USE_SAFARI_TECHNOLOGY_PREVIEW: true
+              USE_SAFARI_TECHNOLOGY_PREVIEW: "true"
           - php: 8.2
             experimental: true
             browser: chrome
@@ -127,7 +127,7 @@ jobs:
       - name: Start SafariDriver
         if: ${{ matrix.browser == 'safari' }}
         run: |
-          if [[ "$USE_SAFARI_TECHNOLOGY_PREVIEW" == true ]]; then
+          if [[ "$USE_SAFARI_TECHNOLOGY_PREVIEW" == "true" ]]; then
             defaults read /Applications/Safari\ Technology\ Preview.app/Contents/Info CFBundleShortVersionString
           else 
             defaults read /Applications/Safari.app/Contents/Info CFBundleShortVersionString
