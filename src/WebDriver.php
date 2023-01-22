@@ -43,12 +43,7 @@ class WebDriver extends CoreDriver
         Keys::LEFT_ALT, Keys::LEFT_CONTROL, Keys::LEFT_SHIFT
     ];
 
-    /**
-     * The WebDriver instance
-     *
-     * @var RemoteWebDriver
-     */
-    private $webDriver;
+    private ?RemoteWebDriver $webDriver = null;
 
     /**
      * @var string
@@ -189,10 +184,7 @@ class WebDriver extends CoreDriver
         return $this->desiredCapabilities;
     }
 
-    /**
-     * @return WebDriver
-     */
-    public function getWebDriver()
+    public function getWebDriver(): ?WebDriver
     {
         return $this->webDriver;
     }
@@ -272,10 +264,10 @@ class WebDriver extends CoreDriver
                 5000,
 
                 // atm I think it's best value for connection timeout
-                // if something takes more than 10s to connect
+                // if something takes more than 15s to connect
                 // something is wrong on infrastructure-level you need to fix it
                 // otherwise this technical depth will grow
-                10000
+                15000
             );
             if (\count($this->timeouts)) {
                 $this->applyTimeouts();
@@ -289,6 +281,34 @@ class WebDriver extends CoreDriver
         if (!$this->webDriver) {
             throw new DriverException('Could not connect to a WebDriver server');
         }
+    }
+
+    /**
+     * Set timeout for the connect phase
+     *
+     * @param int $value Timeout in milliseconds
+     */
+    public function setConnectionTimeout(int $value): void
+    {
+        if (!$this->isStarted()) {
+            return;
+        }
+
+        $this->webDriver->getCommandExecutor()->setConnectionTimeout($value);
+    }
+
+    /**
+     * Set timeout for the connect phase
+     *
+     * @param int $value Timeout in milliseconds
+     */
+    public function setRequestTimeout(int $value): void
+    {
+        if (!$this->isStarted()) {
+            return;
+        }
+
+        $this->webDriver->getCommandExecutor()->setConnectionTimeout($value);
     }
 
     /**
