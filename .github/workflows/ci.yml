@@ -24,6 +24,7 @@ jobs:
         php: [ 7.4, 8.0, 8.1 ]
         browser: [ chrome, firefox ]
         experimental: [false]
+        use_safari_technology_preview: [false]
         include:
           - php: 8.1
             experimental: true
@@ -41,8 +42,7 @@ jobs:
             experimental: true
             browser: safari
             os: macos-latest
-            env:
-              USE_SAFARI_TECHNOLOGY_PREVIEW: "true"
+            use_safari_technology_preview: true
           - php: 8.2
             experimental: true
             browser: chrome
@@ -100,14 +100,10 @@ jobs:
       - uses: browser-actions/setup-geckodriver@latest
         if: matrix.browser == 'firefox'
 
-      - if: matrix.browser == 'safari'
+      - if: matrix.browser == 'safari' && matrix.use_safari_technology_preview == true
         run: |
-          echo "USE_SAFARI_TECHNOLOGY_PREVIEW $USE_SAFARI_TECHNOLOGY_PREVIEW"
-          if [[ "$USE_SAFARI_TECHNOLOGY_PREVIEW" == "true" ]]; then
-            # installing safari-technology-preview
-            brew tap homebrew/cask-versions
-            brew install --cask safari-technology-preview
-          fi;
+          brew tap homebrew/cask-versions
+          brew install --cask safari-technology-preview
 
       - name: Start ChromeDriver
         if: ${{ matrix.browser == 'chrome' }}
@@ -136,7 +132,7 @@ jobs:
       - name: Start SafariDriver
         if: ${{ matrix.browser == 'safari' }}
         run: |          
-          if [[ "$USE_SAFARI_TECHNOLOGY_PREVIEW" == "true" ]]; then
+          if [[ "${{ matrix.use_safari_technology_preview }}" == true ]]; then
             defaults read /Applications/Safari\ Technology\ Preview.app/Contents/Info CFBundleShortVersionString
           else 
             defaults read /Applications/Safari.app/Contents/Info CFBundleShortVersionString
@@ -156,6 +152,7 @@ jobs:
         env:
           SYMFONY_DEPRECATIONS_HELPER: 'max[total]=999999'
           BROWSER_NAME: ${{ matrix.browser }}
+          USE_SAFARI_TECHNOLOGY_PREVIEW: ${{ matrix.use_safari_technology_preview }}
         run: |
           ./vendor/bin/simple-phpunit --testdox
 
