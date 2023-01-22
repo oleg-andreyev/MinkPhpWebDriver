@@ -128,6 +128,9 @@ jobs:
         if: ${{ matrix.browser == 'safari' }}
         run: |
           if [[ "$USE_SAFARI_TECHNOLOGY_PREVIEW" == "true" ]]; then
+            # installing safari-technology-preview
+            brew tap homebrew/cask-versions
+            brew install --cask safari-technology-preview
             defaults read /Applications/Safari\ Technology\ Preview.app/Contents/Info CFBundleShortVersionString
           else 
             defaults read /Applications/Safari.app/Contents/Info CFBundleShortVersionString
