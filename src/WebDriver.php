@@ -261,12 +261,14 @@ class WebDriver extends CoreDriver
                 // if something takes more than 5s to connect
                 // something is wrong on infrastructure-level you need to fix it
                 // otherwise this technical depth will grow
+                // if you really feel or need to override this values method `setConnectionTimeout`
                 5000,
 
                 // atm I think it's best value for connection timeout
                 // if something takes more than 15s to connect
                 // something is wrong on infrastructure-level you need to fix it
                 // otherwise this technical depth will grow
+                // if you really feel or need to override this values method `setRequestTimeout`
                 15000
             );
             if (\count($this->timeouts)) {
