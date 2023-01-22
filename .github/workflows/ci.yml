@@ -127,7 +127,12 @@ jobs:
       - name: Start SafariDriver
         if: ${{ matrix.browser == 'safari' }}
         run: |
-          defaults read /Applications/Safari.app/Contents/Info CFBundleShortVersionString
+          if [[ "$USE_SAFARI_TECHNOLOGY_PREVIEW" == true ]]; then
+            defaults read /Applications/Safari\ Technology\ Preview.app/Contents/Info CFBundleShortVersionString
+          else 
+            defaults read /Applications/Safari.app/Contents/Info CFBundleShortVersionString
+          fi;
+          
           /usr/bin/safaridriver -p 4444 --diagnose &
           
           while ! nc -z localhost 4444 </dev/null; do echo Waiting for driver to start...; sleep 1; done
