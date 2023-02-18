@@ -15,6 +15,34 @@ defaults:
     shell: bash
 
 jobs:
+  static:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        php: [ 7.4 ]
+    steps:
+      - uses: actions/checkout@v3
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          coverage: none
+          extensions: zip, :xdebug
+          tools: composer
+      - id: composer-cache
+        run: echo "::set-output name=directory::$(composer config cache-dir)"
+      - uses: actions/cache@v3
+        with:
+          path: ${{ steps.composer-cache.outputs.directory }}
+          key: ${{ matrix.php }}-composer-${{ hashFiles('**/composer.lock') }}
+          restore-keys: ${{ matrix.php }}-composer-
+      - run: composer update --prefer-dist
+      - name: Style
+        run: |
+          ./bin/php-cs-fixer fix src -v --diff --dry-run --rules=@Symfony
+      - name: Static
+        run: |
+          ./bin/phpstan analyze src
   tests:
     runs-on: ubuntu-latest
     strategy:
