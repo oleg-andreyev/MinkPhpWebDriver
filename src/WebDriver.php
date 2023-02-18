@@ -259,11 +259,9 @@ class WebDriver extends CoreDriver
             }
             $this->rootWindow = $this->webDriver->getWindowHandle();
             $this->windows = [];
-        } catch (\Exception $e) {
+        } catch (\Throwable $e) {
             throw new DriverException('Could not open connection: '.$e->getMessage(), 0, $e);
         }
-
-        throw new DriverException('Could not connect to a WebDriver server');
     }
 
     /**
