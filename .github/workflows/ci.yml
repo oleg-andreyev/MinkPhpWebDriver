@@ -39,7 +39,7 @@ jobs:
       - run: composer update --prefer-dist
       - name: Style
         run: |
-          ./bin/php-cs-fixer fix src -v --diff --dry-run --rules=@Symfony
+          ./bin/php-cs-fixer fix src tests -v --diff --dry-run --rules=@Symfony
       - name: Static
         run: |
           ./bin/phpstan analyze
