@@ -24,7 +24,7 @@ https://github.com/oleg-andreyev/MinkPhpWebdriverExtension
 ./bin/start_webdriver.sh &
 # ./bin/start_driver.sh <browser> <version>
 ./bin/start_driver.sh chrome latest &
-BROWSER_NAME=chrome ./vendor/bin/simple-phpunit
+BROWSER_NAME=chrome ./bin/phpunit
 ```
 
 This will download the latest driver for specified browser and will execute phpunit

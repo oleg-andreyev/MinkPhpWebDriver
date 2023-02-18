@@ -3,9 +3,7 @@
 namespace OAndreyev\Mink\Tests\Driver;
 
 use Behat\Mink\Tests\Driver\AbstractConfig;
-use Behat\Mink\Tests\Driver\Js\WindowTest;
 use Facebook\WebDriver\Chrome\ChromeOptions;
-use Facebook\WebDriver\Exception\WebDriverException;
 use Facebook\WebDriver\Firefox\FirefoxDriver;
 use Facebook\WebDriver\Firefox\FirefoxProfile;
 use Facebook\WebDriver\Remote\DesiredCapabilities;
@@ -18,7 +16,7 @@ class WebDriverConfig extends AbstractConfig
      */
     private $driver;
 
-    public static function getInstance()
+    public static function getInstance(): self
     {
         return new self();
     }
@@ -32,15 +30,15 @@ class WebDriverConfig extends AbstractConfig
         $driverOptions = getenv('DRIVER_OPTIONS') ? \json_decode(getenv('DRIVER_OPTIONS'), true) : [];
         $seleniumHost = $_SERVER['DRIVER_URL'];
 
-        if (json_last_error() !== JSON_ERROR_NONE) {
-            throw new \RuntimeException('Failed to parse DRIVER_OPTIONS: ' . json_last_error_msg());
+        if (JSON_ERROR_NONE !== json_last_error()) {
+            throw new \RuntimeException('Failed to parse DRIVER_OPTIONS: '.json_last_error_msg());
         }
 
-        if ($browser === 'firefox') {
+        if ('firefox' === $browser) {
             $desiredCapabilities = DesiredCapabilities::firefox();
-        } else if ($browser === 'chrome' || $browser === 'msedge') {
+        } elseif ('chrome' === $browser || 'msedge' === $browser) {
             $desiredCapabilities = DesiredCapabilities::chrome();
-            if ($browser === 'msedge') {
+            if ('msedge' === $browser) {
                 $desiredCapabilities->setBrowserName('msedge');
             }
         } else {
@@ -55,12 +53,12 @@ class WebDriverConfig extends AbstractConfig
 
         if (isset($capabilityMap[$browser])) {
             $optionsOrProfile = $desiredCapabilities->getCapability($capabilityMap[$browser]);
-            if ($browser === 'chrome' || $browser === 'msedge') {
+            if ('chrome' === $browser || 'msedge' === $browser) {
                 if (!$optionsOrProfile) {
                     $optionsOrProfile = new ChromeOptions();
                 }
                 $optionsOrProfile = $this->buildChromeOptions($desiredCapabilities, $optionsOrProfile, $driverOptions);
-            } else if ($browser === 'firefox') {
+            } elseif ('firefox' === $browser) {
                 $optionsOrProfile = new FirefoxProfile();
                 $optionsOrProfile = $this->buildFirefoxProfile($desiredCapabilities, $optionsOrProfile, $driverOptions);
             }
@@ -72,7 +70,7 @@ class WebDriverConfig extends AbstractConfig
         $driver->setDesiredCapabilities($desiredCapabilities);
 
         // https://developer.mozilla.org/en-US/docs/Web/WebDriver/Commands/SetTimeouts
-        $driver->setTimeouts(array('implicit' => 0, 'pageLoad' => 300000, 'script' => 30000));
+        $driver->setTimeouts(['implicit' => 0, 'pageLoad' => 300000, 'script' => 30000]);
 
         return $this->driver = $driver;
     }
@@ -85,7 +83,7 @@ class WebDriverConfig extends AbstractConfig
         $desiredCapabilities = $this->driver->getDesiredCapabilities();
         $chromeOptions = $desiredCapabilities->getCapability(ChromeOptions::CAPABILITY_W3C);
 
-        $headless = $desiredCapabilities->getBrowserName() === 'chrome'
+        $headless = 'chrome' === $desiredCapabilities->getBrowserName()
             && $chromeOptions instanceof ChromeOptions
             && in_array('headless', $chromeOptions->toArray()['args'] ?? [], true);
 
@@ -109,12 +107,9 @@ class WebDriverConfig extends AbstractConfig
     }
 
     /**
-     * @param ChromeOptions $optionsOrProfile
-     * @param array         $driverOptions
-     *
-     * @return ChromeOptions
+     * @param array<string, mixed> $driverOptions
      */
-    private function buildChromeOptions(DesiredCapabilities $desiredCapabilities, ChromeOptions $optionsOrProfile, array $driverOptions = [])
+    private function buildChromeOptions(DesiredCapabilities $desiredCapabilities, ChromeOptions $optionsOrProfile, array $driverOptions = []): ChromeOptions
     {
         $binary = $driverOptions['binary'] ?? null;
         $optionsOrProfile->setBinary($binary);
@@ -125,20 +120,16 @@ class WebDriverConfig extends AbstractConfig
         return $optionsOrProfile;
 
         // TODO
-        //$capability->addEncodedExtension();
-        //$capability->addExtension();
-        //$capability->addEncodedExtensions();
-        //$capability->addExtensions();
+        // $capability->addEncodedExtension();
+        // $capability->addExtension();
+        // $capability->addEncodedExtensions();
+        // $capability->addExtensions();
     }
 
     /**
-     * @param FirefoxProfile $optionsOrProfile
-     * @param array          $driverOptions
-     *
-     * @return FirefoxProfile
-     * @throws WebDriverException
+     * @param array<string, mixed> $driverOptions
      */
-    private function buildFirefoxProfile(DesiredCapabilities $desiredCapabilities, FirefoxProfile $optionsOrProfile, array $driverOptions)
+    private function buildFirefoxProfile(DesiredCapabilities $desiredCapabilities, FirefoxProfile $optionsOrProfile, array $driverOptions): FirefoxProfile
     {
         if (isset($driverOptions['binary'])) {
             $firefoxOptions = $desiredCapabilities->getCapability('moz:firefoxOptions');
@@ -172,6 +163,7 @@ class WebDriverConfig extends AbstractConfig
             // $capability->addExtensionDatas($key, $preference);
             // $capability->addExtension($key, $preference);
         }
+
         return $optionsOrProfile;
     }
 }

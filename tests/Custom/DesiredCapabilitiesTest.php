@@ -9,19 +9,19 @@ use OAndreyev\Mink\Driver\WebDriver;
 
 class DesiredCapabilitiesTest extends TestCase
 {
-    public function testGetDesiredCapabilities()
+    public function testGetDesiredCapabilities(): void
     {
-        $expectedCaps = array(
-            'browserName'       => 'firefox',
-            'version'           => '30',
-            'platform'          => 'ANY',
-            'browserVersion'    => '30',
-            'browser'           => 'firefox',
-            'name'              => 'Selenium2 Mink Driver Test',
+        $expectedCaps = [
+            'browserName' => 'firefox',
+            'version' => '30',
+            'platform' => 'ANY',
+            'browserVersion' => '30',
+            'browser' => 'firefox',
+            'name' => 'Selenium2 Mink Driver Test',
             'deviceOrientation' => 'portrait',
-            'deviceType'        => 'tablet',
-            'selenium-version'  => '2.45.0'
-        );
+            'deviceType' => 'tablet',
+            'selenium-version' => '2.45.0',
+        ];
 
         $driver = new WebDriver('firefox', $expectedCaps);
         $this->assertNotEmpty($driver->getDesiredCapabilities(), 'desiredCapabilities empty');
@@ -32,22 +32,22 @@ class DesiredCapabilitiesTest extends TestCase
         }
     }
 
-    public function testSetDesiredCapabilities()
+    public function testSetDesiredCapabilities(): void
     {
         $this->expectException(DriverException::class);
         $this->expectExceptionMessage('Unable to set desiredCapabilities, the session has already started');
 
-        $caps = array(
-            'browserName'       => 'firefox',
-            'version'           => '30',
-            'platform'          => 'ANY',
-            'browserVersion'    => '30',
-            'browser'           => 'firefox',
-            'name'              => 'Selenium2 Mink Driver Test',
+        $caps = [
+            'browserName' => 'firefox',
+            'version' => '30',
+            'platform' => 'ANY',
+            'browserVersion' => '30',
+            'browser' => 'firefox',
+            'name' => 'Selenium2 Mink Driver Test',
             'deviceOrientation' => 'portrait',
-            'deviceType'        => 'tablet',
-            'selenium-version'  => '2.45.0'
-        );
+            'deviceType' => 'tablet',
+            'selenium-version' => '2.45.0',
+        ];
         $session = $this->getSession();
         $session->start();
 

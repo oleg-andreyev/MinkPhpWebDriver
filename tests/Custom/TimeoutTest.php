@@ -21,29 +21,30 @@ class TimeoutTest extends TestCase
     /**
      * @before
      */
-    protected function before()
+    protected function before(): void
     {
         $this->session = $this->getSession();
-        $this->driver = $this->session->getDriver();
+        /** @var WebDriver $driver */
+        $driver = $this->session->getDriver();
+        $this->driver = $driver;
     }
 
     protected function tearDown(): void
     {
         // https://developer.mozilla.org/en-US/docs/Web/WebDriver/Commands/SetTimeouts
-        $this->driver->setTimeouts(array('implicit' => 0, 'pageLoad' => 300000, 'script' => 30000));
+        $this->driver->setTimeouts(['implicit' => 0, 'pageLoad' => 300000, 'script' => 30000]);
     }
 
-
-    public function testInvalidTimeoutSettingThrowsException()
+    public function testInvalidTimeoutSettingThrowsException(): void
     {
         $this->expectException(DriverException::class);
         $this->session->start();
-        $this->driver->setTimeouts(array('invalid' => 0));
+        $this->driver->setTimeouts(['invalid' => 0]);
     }
 
-    public function testShortTimeoutDoesNotWaitForElementToAppear()
+    public function testShortTimeoutDoesNotWaitForElementToAppear(): void
     {
-        $this->driver->setTimeouts(array('implicit' => 0));
+        $this->driver->setTimeouts(['implicit' => 0]);
 
         $this->session->visit($this->pathTo('/js_test.html'));
         $this->findById('waitable')->click();
@@ -53,9 +54,9 @@ class TimeoutTest extends TestCase
         $this->assertNull($element);
     }
 
-    public function testLongTimeoutWaitsForElementToAppear()
+    public function testLongTimeoutWaitsForElementToAppear(): void
     {
-        $this->driver->setTimeouts(array('implicit' => 5000));
+        $this->driver->setTimeouts(['implicit' => 5000]);
 
         $this->session->visit($this->pathTo('/js_test.html'));
         $this->findById('waitable')->click();
@@ -64,25 +65,25 @@ class TimeoutTest extends TestCase
         $this->assertNotNull($element);
     }
 
-    public function testPageLoadTimeout()
+    public function testPageLoadTimeout(): void
     {
         $this->expectException(DriverException::class);
-        $this->driver->setTimeouts(array('pageLoad' => 1));
+        $this->driver->setTimeouts(['pageLoad' => 1]);
         $this->session->visit($this->pathTo('/page_load.php?sleep=2'));
     }
 
-    public function testPageReloadTimeout()
+    public function testPageReloadTimeout(): void
     {
         $this->expectException(DriverException::class);
         $this->session->visit($this->pathTo('/page_load.php?sleep=2'));
-        $this->driver->setTimeouts(array('pageLoad' => 1));
+        $this->driver->setTimeouts(['pageLoad' => 1]);
         $this->session->reload();
     }
 
-    public function testScriptTimeout()
+    public function testScriptTimeout(): void
     {
         $this->expectException(DriverException::class);
-        $this->driver->setTimeouts(array('script' => 1));
+        $this->driver->setTimeouts(['script' => 1]);
         $this->session->visit($this->pathTo('/js_test.html'));
 
         // @see https://w3c.github.io/webdriver/#execute-async-script
