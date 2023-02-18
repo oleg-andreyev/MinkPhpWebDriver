@@ -42,7 +42,7 @@ jobs:
           ./bin/php-cs-fixer fix src -v --diff --dry-run --rules=@Symfony
       - name: Static
         run: |
-          ./bin/phpstan analyze src
+          ./bin/phpstan analyze
   tests:
     runs-on: ubuntu-latest
     strategy:
@@ -132,7 +132,7 @@ jobs:
           SYMFONY_DEPRECATIONS_HELPER: 'max[total]=999999'
           BROWSER_NAME: ${{ matrix.browser }}
         run: |
-          ./bin/simple-phpunit -v
+          ./bin/phpunit -v
 
       - name: Archive logs artifacts
         if: ${{ always() }}
