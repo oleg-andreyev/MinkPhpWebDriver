@@ -648,7 +648,7 @@ class WebDriver extends CoreDriver
     }
 
     /**
-     * @param string          $xpath
+     * @param string               $xpath
      * @param string|bool|string[] $value
      *
      * @return void
