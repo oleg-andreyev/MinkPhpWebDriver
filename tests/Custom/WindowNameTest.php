@@ -6,7 +6,7 @@ use Behat\Mink\Tests\Driver\TestCase;
 
 class WindowNameTest extends TestCase
 {
-    public function testWindowNames()
+    public function testWindowNames(): void
     {
         $session = $this->getSession();
         $session->start();
@@ -20,7 +20,7 @@ class WindowNameTest extends TestCase
         $this->assertContains($windowName, $windowNames, 'The current window name is one of the available window names.');
     }
 
-    public function testReopenWindow()
+    public function testReopenWindow(): void
     {
         $this->getSession()->visit($this->pathTo('/window.html'));
         $session = $this->getSession();
@@ -42,7 +42,7 @@ class WindowNameTest extends TestCase
         $this->assertSame('Popup#1 div text', $el->getText());
     }
 
-    public function testSwitchWindowAfterReset()
+    public function testSwitchWindowAfterReset(): void
     {
         $session = $this->getSession();
         $page = $session->getPage();

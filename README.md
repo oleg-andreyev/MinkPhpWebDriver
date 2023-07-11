@@ -5,7 +5,7 @@ Initially it's started as [PR](https://github.com/minkphp/MinkSelenium2Driver/pu
 
 Major updates include:
  - Switch to using `facebook/webdriver`
- - Update minimum php version to 7.4
+ - Update minimum php version to 8.0
  - Tested against the latest Google Chrome and Mozilla Firefox both in GUI and Headless modes
 
 ## Setup
@@ -24,7 +24,7 @@ https://github.com/oleg-andreyev/MinkPhpWebdriverExtension
 ./bin/start_webdriver.sh &
 # ./bin/start_driver.sh <browser> <version>
 ./bin/start_driver.sh chrome latest &
-BROWSER_NAME=chrome ./vendor/bin/simple-phpunit
+BROWSER_NAME=chrome ./bin/phpunit
 ```
 
 This will download the latest driver for specified browser and will execute phpunit
@@ -34,4 +34,4 @@ Follow https://github.com/shivammathur/setup-php#local-testing-setup
 
 ## Copyright
 
-Copyright (c) 2022 Oleg Andreyev <oleg@andreyev.lv>
+Copyright (c) 2023 Oleg Andreyev <oleg@andreyev.lv>

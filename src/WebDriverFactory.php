@@ -7,16 +7,15 @@ use Symfony\Component\DependencyInjection\Definition;
 
 class WebDriverFactory extends Selenium2Factory
 {
-    /**
-     * {@inheritdoc}
-     */
     public function getDriverName()
     {
         return 'webdriver';
     }
 
     /**
-     * {@inheritdoc}
+     * @param array<string, mixed> $config
+     *
+     * @return Definition
      */
     public function buildDriver(array $config)
     {
@@ -34,9 +33,9 @@ class WebDriverFactory extends Selenium2Factory
     }
 
     /**
-     * Guess capabilities from environment
+     * Guess capabilities from environment.
      *
-     * @return array
+     * @return array<string, mixed>
      */
     protected function guessCapabilities()
     {
@@ -44,12 +43,12 @@ class WebDriverFactory extends Selenium2Factory
             return [
                 'tunnel-identifier' => getenv('GITHUB_RUN_ID'),
                 'build' => getenv('GITHUB_RUN_NUMBER'),
-                'tags' => ['GitHub Actions', 'PHP ' . PHP_VERSION],
+                'tags' => ['GitHub Actions', 'PHP '.PHP_VERSION],
             ];
         }
 
         return [
-            'tags' => [php_uname('n'), 'PHP ' . PHP_VERSION],
+            'tags' => [php_uname('n'), 'PHP '.PHP_VERSION],
         ];
     }
 }

@@ -14,10 +14,10 @@ use Behat\Mink\Driver\CoreDriver;
 use Behat\Mink\Exception\DriverException;
 use Behat\Mink\Exception\UnsupportedDriverActionException;
 use Facebook\WebDriver\Cookie;
+use Facebook\WebDriver\Exception\ElementNotInteractableException;
 use Facebook\WebDriver\Exception\NoSuchCookieException;
 use Facebook\WebDriver\Exception\NoSuchElementException;
 use Facebook\WebDriver\Exception\ScriptTimeoutException;
-use Facebook\WebDriver\Exception\TimeOutException;
 use Facebook\WebDriver\Remote\DesiredCapabilities;
 use Facebook\WebDriver\Remote\LocalFileDetector;
 use Facebook\WebDriver\Remote\RemoteWebDriver;
@@ -29,7 +29,7 @@ use Facebook\WebDriver\WebDriverElement;
 use Facebook\WebDriver\WebDriverKeys as Keys;
 use Facebook\WebDriver\WebDriverRadios;
 use Facebook\WebDriver\WebDriverSelect;
-use Facebook\WebDriver\Exception\ElementNotInteractableException;
+use JetBrains\PhpStorm\Language;
 
 /**
  * WebDriver driver.
@@ -38,15 +38,15 @@ use Facebook\WebDriver\Exception\ElementNotInteractableException;
  */
 class WebDriver extends CoreDriver
 {
-    const MODIFIER_KEYS = [
+    public const MODIFIER_KEYS = [
         Keys::SHIFT, Keys::CONTROL, Keys::ALT, Keys::META, Keys::COMMAND,
-        Keys::LEFT_ALT, Keys::LEFT_CONTROL, Keys::LEFT_SHIFT
+        Keys::LEFT_ALT, Keys::LEFT_CONTROL, Keys::LEFT_SHIFT,
     ];
 
     /**
-     * The WebDriver instance
+     * The WebDriver instance.
      *
-     * @var RemoteWebDriver
+     * @var RemoteWebDriver|null
      */
     private $webDriver;
 
@@ -61,21 +61,17 @@ class WebDriver extends CoreDriver
     private $desiredCapabilities;
 
     /**
-     * The timeout configuration
-     *
-     * @var array
+     * @var array{script?: int, implicit?: int, pageLoad?: int}
      */
-    private $timeouts = array();
+    private $timeouts = [];
 
     /**
-     * Wd host
-     *
-     * @var string
+     * @var string|null
      */
     private $wdHost;
 
     /**
-     * @var string
+     * @var string|null
      */
     private $rootWindow;
 
@@ -87,18 +83,18 @@ class WebDriver extends CoreDriver
     /**
      * Instantiates the driver.
      *
-     * @param string $browserName         Browser name
-     * @param array  $desiredCapabilities The desired capabilities
-     * @param string $wdHost              The WebDriver host
+     * @param string                    $browserName         Browser name
+     * @param array<string, mixed>|null $desiredCapabilities The desired capabilities
+     * @param string                    $wdHost              The WebDriver host
      */
     public function __construct($browserName = 'firefox', $desiredCapabilities = null, $wdHost = 'http://localhost:4444/wd/hub')
     {
         $this->wdHost = $wdHost;
         $this->browserName = $browserName;
 
-        if ($browserName === 'firefox') {
+        if ('firefox' === $browserName) {
             $this->desiredCapabilities = DesiredCapabilities::firefox();
-        } else if ($browserName === 'chrome') {
+        } elseif ('chrome' === $browserName) {
             $this->desiredCapabilities = DesiredCapabilities::chrome();
         } else {
             $this->desiredCapabilities = new DesiredCapabilities();
@@ -112,9 +108,13 @@ class WebDriver extends CoreDriver
     }
 
     /**
-     * Sets the timeouts to apply to the webdriver session
+     * Sets the timeouts to apply to the webdriver session.
      *
-     * @param array $timeouts The session timeout settings: Array of {script, implicit, page} => time in milliseconds
+     * @param array{script?: int, implicit?: int, pageLoad?: int} $timeouts
+     *
+     * @return void
+     *
+     * @throws DriverException
      */
     public function setTimeouts(array $timeouts)
     {
@@ -127,7 +127,9 @@ class WebDriver extends CoreDriver
     }
 
     /**
-     * Applies timeouts to the current session
+     * @return void
+     *
+     * @throws DriverException
      */
     private function applyTimeouts()
     {
@@ -135,9 +137,9 @@ class WebDriver extends CoreDriver
         $timeouts = $this->webDriver->manage()->timeouts();
         if (isset($this->timeouts['implicit'])) {
             $timeouts->implicitlyWait($this->timeouts['implicit']);
-        } else if (isset($this->timeouts['pageLoad'])) {
+        } elseif (isset($this->timeouts['pageLoad'])) {
             $timeouts->pageLoadTimeout($this->timeouts['pageLoad']);
-        } else if (isset($this->timeouts['script'])) {
+        } elseif (isset($this->timeouts['script'])) {
             $timeouts->setScriptTimeout($this->timeouts['script']);
         } else {
             throw new DriverException('Invalid timeout option');
@@ -145,9 +147,9 @@ class WebDriver extends CoreDriver
     }
 
     /**
-     * Sets the browser name
+     * @param string $browserName
      *
-     * @param string $browserName the name of the browser to start, default is 'firefox'
+     * @return void
      */
     protected function setBrowserName($browserName = 'firefox')
     {
@@ -155,14 +157,15 @@ class WebDriver extends CoreDriver
     }
 
     /**
-     * Sets the desired capabilities - called on construction.  If null is provided, will set the
-     * defaults as desired.
+     * Sets the desired capabilities - called on construction.
      *
-     * See http://code.google.com/p/selenium/wiki/DesiredCapabilities
+     * @param DesiredCapabilities|array<string, mixed>|null $desiredCapabilities if null is provided, will set the defaults as desired
      *
-     * @param DesiredCapabilities|array|null $desiredCapabilities
+     * @return void
      *
      * @throws DriverException
+     *
+     * @see http://code.google.com/p/selenium/wiki/DesiredCapabilities
      */
     public function setDesiredCapabilities($desiredCapabilities = null)
     {
@@ -172,7 +175,7 @@ class WebDriver extends CoreDriver
 
         if (is_array($desiredCapabilities)) {
             $desiredCapabilities = new DesiredCapabilities($desiredCapabilities);
-        } else if ($desiredCapabilities === null) {
+        } elseif (null === $desiredCapabilities) {
             $desiredCapabilities = new DesiredCapabilities();
         }
 
@@ -180,7 +183,7 @@ class WebDriver extends CoreDriver
     }
 
     /**
-     * Gets the desiredCapabilities
+     * Gets the desiredCapabilities.
      *
      * @return DesiredCapabilities
      */
@@ -190,7 +193,7 @@ class WebDriver extends CoreDriver
     }
 
     /**
-     * @return WebDriver
+     * @return RemoteWebDriver|null
      */
     public function getWebDriver()
     {
@@ -198,49 +201,38 @@ class WebDriver extends CoreDriver
     }
 
     /**
-     * Returns the default capabilities
-     *
-     * @return array
-     */
-    public static function getDefaultCapabilities()
-    {
-        return array(
-            'browserName' => 'firefox',
-            'name'        => 'Behat Test',
-        );
-    }
-
-    /**
      * Executes JS on a given element - pass in a js script string and {{ELEMENT}} will
-     * be replaced with a reference to the result of the $xpath query
+     * be replaced with a reference to the result of the $xpath query.
      *
      * @example $this->executeJsOnXpath($xpath, 'return {{ELEMENT}}.childNodes.length');
      *
-     * @param string  $xpath  the xpath to search with
-     * @param string  $script the script to execute
-     * @param Boolean $sync   whether to run the script synchronously (default is TRUE)
-     *
-     * @return mixed
+     * @param string $xpath  the xpath to search with
+     * @param string $script the script to execute
+     * @param bool   $sync   whether to run the script synchronously (default is TRUE)
      */
-    private function executeJsOnXpath($xpath, $script, $sync = true)
-    {
+    private function executeJsOnXpath(
+        #[Language('xpath')]
+        string $xpath,
+        #[Language('javascript')]
+        string $script,
+        bool $sync = true
+    ): mixed {
         $element = $this->findElement($xpath);
+
         return $this->executeJsOnElement($element, $script, $sync);
     }
 
     /**
      * Executes JS on a given element - pass in a js script string and {{ELEMENT}} will
-     * be replaced with a reference to the element
+     * be replaced with a reference to the element.
      *
      * @example $this->executeJsOnXpath($xpath, 'return {{ELEMENT}}.childNodes.length');
      *
      * @param WebDriverElement $element the webdriver element
      * @param string           $script  the script to execute
-     * @param Boolean          $sync    whether to run the script synchronously (default is TRUE)
-     *
-     * @return mixed
+     * @param bool             $sync    whether to run the script synchronously (default is TRUE)
      */
-    private function executeJsOnElement(WebDriverElement $element, $script, $sync = true)
+    private function executeJsOnElement(WebDriverElement $element, $script, $sync = true): mixed
     {
         $script = str_replace('{{ELEMENT}}', 'arguments[0]', $script);
 
@@ -252,7 +244,9 @@ class WebDriver extends CoreDriver
     }
 
     /**
-     * {@inheritdoc}
+     * @return RemoteWebDriver|null
+     *
+     * @throws DriverException
      */
     public function start()
     {
@@ -268,24 +262,24 @@ class WebDriver extends CoreDriver
             $this->rootWindow = $this->webDriver->getWindowHandle();
             $this->windows = [];
         } catch (\Exception $e) {
-            throw new DriverException('Could not open connection: ' . $e->getMessage(), 0, $e);
+            throw new DriverException('Could not open connection: '.$e->getMessage(), 0, $e);
         }
 
-        if (!$this->webDriver) {
-            throw new DriverException('Could not connect to a WebDriver server');
-        }
+        return $this->webDriver;
     }
 
     /**
-     * {@inheritdoc}
+     * @return bool
      */
     public function isStarted()
     {
-        return $this->webDriver !== null;
+        return null !== $this->webDriver;
     }
 
     /**
-     * {@inheritdoc}
+     * @return void
+     *
+     * @throws DriverException
      */
     public function stop()
     {
@@ -302,7 +296,9 @@ class WebDriver extends CoreDriver
     }
 
     /**
-     * {@inheritdoc}
+     * @return void
+     *
+     * @throws UnsupportedDriverActionException
      */
     public function reset()
     {
@@ -314,19 +310,23 @@ class WebDriver extends CoreDriver
     }
 
     /**
-     * {@inheritdoc}
+     * @param string $url
+     *
+     * @return void
+     *
+     * @throws DriverException
      */
     public function visit($url)
     {
         try {
             $this->webDriver->navigate()->to($url);
-        } catch (TimeOutException $e) {
+        } catch (\Facebook\WebDriver\Exception\TimeoutException $e) {
             throw new DriverException($e->getMessage(), $e->getCode(), $e);
         }
     }
 
     /**
-     * {@inheritdoc}
+     * @return string|null
      */
     public function getCurrentUrl()
     {
@@ -334,19 +334,21 @@ class WebDriver extends CoreDriver
     }
 
     /**
-     * {@inheritdoc}
+     * @return void
+     *
+     * @throws DriverException
      */
     public function reload()
     {
         try {
             $this->webDriver->navigate()->refresh();
-        } catch (TimeOutException $e) {
+        } catch (\Facebook\WebDriver\Exception\TimeoutException $e) {
             throw new DriverException($e->getMessage(), $e->getCode(), $e);
         }
     }
 
     /**
-     * {@inheritdoc}
+     * @return void
      */
     public function forward()
     {
@@ -354,7 +356,7 @@ class WebDriver extends CoreDriver
     }
 
     /**
-     * {@inheritdoc}
+     * @return void
      */
     public function back()
     {
@@ -362,11 +364,16 @@ class WebDriver extends CoreDriver
     }
 
     /**
-     * {@inheritdoc}
+     * @param string $name
+     *
+     * @return void
+     *
+     * @throws DriverException
+     * @throws UnsupportedDriverActionException
      */
     public function switchToWindow($name = null)
     {
-        if ($this->browserName === 'firefox') {
+        if ('firefox' === $this->browserName) {
             // Firefox stores window IDs rather than window names and does not provide a working way to map the ids to
             // names.
             // Each time we switch to a window, we fetch the list of window IDs, and attempt to map them.
@@ -380,7 +387,7 @@ class WebDriver extends CoreDriver
                 }
 
                 $title = array_search($id, $this->windows, true);
-                if ($title !== false) {
+                if (false !== $title) {
                     // This window is current and the name already stored.
                     // Use the currently stored id from $this->windows to avoid switching window unnecessarily.
                     $handles[$title] = $id;
@@ -398,7 +405,7 @@ class WebDriver extends CoreDriver
 
             if (null === $name) {
                 $name = $this->rootWindow;
-            } else if (array_key_exists($name, $this->windows)) {
+            } elseif (array_key_exists($name, $this->windows)) {
                 $name = $this->windows[$name];
             }
         }
@@ -407,7 +414,9 @@ class WebDriver extends CoreDriver
     }
 
     /**
-     * {@inheritdoc}
+     * @param string $name
+     *
+     * @return void
      */
     public function switchToIFrame($name = null)
     {
@@ -420,7 +429,10 @@ class WebDriver extends CoreDriver
     }
 
     /**
-     * {@inheritdoc}
+     * @param string      $name
+     * @param string|null $value
+     *
+     * @return void
      */
     public function setCookie($name, $value = null)
     {
@@ -435,7 +447,9 @@ class WebDriver extends CoreDriver
     }
 
     /**
-     * {@inheritdoc}
+     * @param string $name
+     *
+     * @return string|null
      */
     public function getCookie($name)
     {
@@ -449,46 +463,42 @@ class WebDriver extends CoreDriver
     }
 
     /**
-     * {@inheritdoc}
+     * @return array|string|string[]|null
      */
     public function getContent()
     {
         $source = $this->webDriver->getPageSource();
-        return str_replace(array("\r", "\r\n", "\n"), \PHP_EOL, $source);
+
+        return str_replace(["\r", "\r\n", "\n"], \PHP_EOL, $source);
     }
 
     /**
-     * {@inheritdoc}
+     * @param string $save_as
+     *
+     * @return string
      */
     public function getScreenshot($save_as = null)
     {
         return $this->webDriver->takeScreenshot($save_as);
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function getWindowNames()
     {
         return $this->webDriver->getWindowHandles();
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function getWindowName()
     {
         return $this->webDriver->getWindowHandle();
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function findElementXpaths($xpath)
-    {
+    public function findElementXpaths(
+        #[Language('xpath')]
+        $xpath
+    ) {
         $nodes = $this->webDriver->findElements(WebDriverBy::xpath($xpath));
 
-        $elements = array();
+        $elements = [];
         foreach ($nodes as $i => $node) {
             $elements[] = sprintf('(%s)[%d]', $xpath, $i + 1);
         }
@@ -496,54 +506,63 @@ class WebDriver extends CoreDriver
         return $elements;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getTagName($xpath)
-    {
+    public function getTagName(
+        #[Language('xpath')]
+        $xpath
+    ) {
         $element = $this->findElement($xpath);
+
         return $element->getTagName();
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getText($xpath)
-    {
+    public function getText(
+        #[Language('xpath')]
+        $xpath
+    ) {
         $element = $this->findElement($xpath);
         $text = $element->getText();
 
-        $text = (string) str_replace(array("\r", "\r\n", "\n"), ' ', $text);
+        $text = (string) str_replace(["\r", "\r\n", "\n"], ' ', $text);
 
         return $text;
     }
 
     /**
-     * {@inheritdoc}
+     * @param string $xpath
      */
-    public function getHtml($xpath)
-    {
+    public function getHtml(
+        #[Language('xpath')]
+        $xpath
+    ) {
         return $this->executeJsOnXpath($xpath, 'return {{ELEMENT}}.innerHTML;');
     }
 
     /**
-     * {@inheritdoc}
+     * @param string $xpath
      */
-    public function getOuterHtml($xpath)
-    {
+    public function getOuterHtml(
+        #[Language('xpath')]
+        $xpath
+    ) {
         return $this->executeJsOnXpath($xpath, 'return {{ELEMENT}}.outerHTML;');
     }
 
     /**
-     * {@inheritdoc}
+     * @param string $xpath
+     * @param string $name
+     *
+     * @return string|true|null
      */
-    public function getAttribute($xpath, $name)
-    {
+    public function getAttribute(
+        #[Language('xpath')]
+        $xpath,
+        $name
+    ) {
         $element = $this->findElement($xpath);
 
         /**
          * If attribute is present but does not have value, it's considered as Boolean Attributes https://html.spec.whatwg.org/#boolean-attributes
-         * but here result may be unexpected in case of <element my-attr/>, my-attr should return TRUE, but it will return "empty string"
+         * but here result may be unexpected in case of <element my-attr/>, my-attr should return TRUE, but it will return "empty string".
          *
          * @see https://w3c.github.io/webdriver/#get-element-attribute
          */
@@ -558,8 +577,7 @@ class WebDriver extends CoreDriver
     }
 
     /**
-     * @param WebDriverElement $element
-     * @param string           $name
+     * @param string $name
      *
      * @return bool
      */
@@ -569,10 +587,18 @@ class WebDriver extends CoreDriver
     }
 
     /**
-     * {@inheritdoc}
+     * @param string $xpath
+     *
+     * @return array|bool|null[]|string|string[]|null
+     *
+     * @throws NoSuchElementException
+     * @throws \Facebook\WebDriver\Exception\InvalidElementStateException
+     * @throws \Facebook\WebDriver\Exception\UnexpectedTagNameException
      */
-    public function getValue($xpath)
-    {
+    public function getValue(
+        #[Language('xpath')]
+        $xpath
+    ) {
         $element = $this->findElement($xpath);
         $elementName = strtolower($element->getTagName());
         $elementType = strtolower($element->getAttribute('type') ?: 'text');
@@ -588,7 +614,7 @@ class WebDriver extends CoreDriver
                 return $radios->getFirstSelectedOption()->getAttribute('value');
             } catch (NoSuchElementException $e) {
                 // TODO: Need to distinguish missing element and no radio selected
-                if ($e->getMessage() === 'No radio buttons are selected') {
+                if ('No radio buttons are selected' === $e->getMessage()) {
                     return null;
                 }
 
@@ -610,7 +636,7 @@ class WebDriver extends CoreDriver
                 return $select->getFirstSelectedOption()->getAttribute('value');
             } catch (NoSuchElementException $e) {
                 // TODO: Need to distinguish missing element and no option selected
-                if ($e->getMessage() === 'No options are selected') {
+                if ('No options are selected' === $e->getMessage()) {
                     return '';
                 }
 
@@ -622,10 +648,23 @@ class WebDriver extends CoreDriver
     }
 
     /**
-     * {@inheritdoc}
+     * @param string          $xpath
+     * @param string|string[] $value
+     *
+     * @return void
+     *
+     * @throws DriverException
+     * @throws ElementNotInteractableException
+     * @throws NoSuchElementException
+     * @throws \Facebook\WebDriver\Exception\InvalidElementStateException
+     * @throws \Facebook\WebDriver\Exception\UnexpectedTagNameException
+     * @throws \Facebook\WebDriver\Exception\UnsupportedOperationException
      */
-    public function setValue($xpath, $value)
-    {
+    public function setValue(
+        #[Language('xpath')]
+        $xpath,
+        $value
+    ) {
         $element = $this->findElement($xpath);
         $elementName = strtolower($element->getTagName());
 
@@ -649,7 +688,7 @@ class WebDriver extends CoreDriver
         if ('input' === $elementName) {
             $elementType = strtolower($element->getAttribute('type') ?: 'text');
 
-            if (in_array($elementType, array('submit', 'image', 'button', 'reset'))) {
+            if (in_array($elementType, ['submit', 'image', 'button', 'reset'])) {
                 throw new DriverException(sprintf('Impossible to set value an element with XPath "%s" as it is not a select, textarea or textbox', $xpath));
             }
 
@@ -664,11 +703,13 @@ class WebDriver extends CoreDriver
             if ('radio' === $elementType) {
                 $radios = new WebDriverRadios($element);
                 $radios->selectByValue($value);
+
                 return;
             }
 
             if ('file' === $elementType) {
                 $this->attachFile($xpath, $value);
+
                 return;
             }
 
@@ -677,6 +718,7 @@ class WebDriver extends CoreDriver
             // See https://code.google.com/p/selenium/issues/detail?id=7650
             if ('color' === $elementType) {
                 $this->executeJsOnElement($element, sprintf('return {{ELEMENT}}.value = "%s"', $value));
+
                 return;
             }
 
@@ -684,17 +726,18 @@ class WebDriver extends CoreDriver
             if ('date' === $elementType || 'time' === $elementType) {
                 $date = date(DATE_ATOM, strtotime($value));
                 $this->executeJsOnElement($element, sprintf('return {{ELEMENT}}.valueAsDate = new Date("%s")', $date));
+
                 return;
             }
         }
 
         $value = (string) $value;
 
-        if (in_array($elementName, array('input', 'textarea'))) {
+        if (in_array($elementName, ['input', 'textarea'])) {
             $existingValueLength = strlen($element->getAttribute('value'));
             // Add the TAB key to ensure we unfocus the field as browsers are triggering the change event only
             // after leaving the field.
-            $value = str_repeat(Keys::BACKSPACE . Keys::DELETE, $existingValueLength) . $value;
+            $value = str_repeat(Keys::BACKSPACE.Keys::DELETE, $existingValueLength).$value;
         }
 
         $element->sendKeys($value);
@@ -711,10 +754,17 @@ EOF;
     }
 
     /**
-     * {@inheritdoc}
+     * @param string $xpath
+     *
+     * @return void
+     *
+     * @throws DriverException
+     * @throws ElementNotInteractableException
      */
-    public function check($xpath)
-    {
+    public function check(
+        #[Language('xpath')]
+        $xpath
+    ) {
         $element = $this->findElement($xpath);
         $this->ensureInputType($element, $xpath, 'checkbox', 'check');
 
@@ -726,10 +776,17 @@ EOF;
     }
 
     /**
-     * {@inheritdoc}
+     * @param string $xpath
+     *
+     * @return void
+     *
+     * @throws DriverException
+     * @throws ElementNotInteractableException
      */
-    public function uncheck($xpath)
-    {
+    public function uncheck(
+        #[Language('xpath')]
+        $xpath
+    ) {
         $element = $this->findElement($xpath);
         $this->ensureInputType($element, $xpath, 'checkbox', 'uncheck');
 
@@ -741,24 +798,43 @@ EOF;
     }
 
     /**
-     * {@inheritdoc}
+     * @param string $xpath
+     *
+     * @return bool
      */
-    public function isChecked($xpath)
-    {
+    public function isChecked(
+        #[Language('xpath')]
+        $xpath
+    ) {
         return $this->isSelected($xpath);
     }
 
     /**
-     * {@inheritdoc}
+     * @param string $xpath
+     * @param string $value
+     * @param bool   $multiple
+     *
+     * @return void
+     *
+     * @throws DriverException
+     * @throws NoSuchElementException
+     * @throws \Facebook\WebDriver\Exception\InvalidElementStateException
+     * @throws \Facebook\WebDriver\Exception\UnexpectedTagNameException
+     * @throws \Facebook\WebDriver\Exception\UnsupportedOperationException
      */
-    public function selectOption($xpath, $value, $multiple = false)
-    {
+    public function selectOption(
+        #[Language('xpath')]
+        $xpath,
+        $value,
+        $multiple = false
+    ) {
         $element = $this->findElement($xpath);
         $tagName = strtolower($element->getTagName());
 
         if ('input' === $tagName && 'radio' === strtolower($element->getAttribute('type') ?: '')) {
             $element = new WebDriverRadios($element);
             $element->selectByValue($value);
+
             return;
         }
 
@@ -782,27 +858,34 @@ EOF;
     }
 
     /**
-     * {@inheritdoc}
+     * @param string $xpath
+     *
+     * @return bool
      */
-    public function isSelected($xpath)
-    {
+    public function isSelected(
+        #[Language('xpath')]
+        $xpath
+    ) {
         $element = $this->findElement($xpath);
+
         return $element->isSelected();
     }
 
     /**
-     * {@inheritdoc}
+     * @return void
+     *
+     * @throws ElementNotInteractableException
      */
-    public function click($xpath)
-    {
+    public function click(
+        #[Language('xpath')]
+        $xpath
+    ) {
         $element = $this->findElement($xpath);
         $this->clickOnElement($element);
     }
 
     /**
-     * Attempt to ensure that the node is in the viewport.
-     *
-     * @param WebDriverElement $element
+     * @return void
      */
     private function scrollElementIntoViewIfRequired(WebDriverElement $element)
     {
@@ -819,9 +902,14 @@ EOF;
         $this->executeJsOnElement($element, $js);
     }
 
+    /**
+     * @return void
+     *
+     * @throws ElementNotInteractableException
+     */
     private function clickOnElement(WebDriverElement $element)
     {
-        if ($this->browserName === 'firefox') {
+        if ('firefox' === $this->browserName) {
             // TODO: Raise a bug against geckodrvier.
             // Firefox does not move cursor over an element in breach of https://w3c.github.io/webdriver/#element-click
             // section 8.Otherwise.
@@ -829,7 +917,7 @@ EOF;
             $this->mouseOverElement($element);
         }
 
-        if ($this->browserName === 'firefox') {
+        if ('firefox' === $this->browserName) {
             try {
                 $element->click();
             } catch (ElementNotInteractableException $e) {
@@ -842,6 +930,7 @@ EOF;
                     // we run out of potential children to click.
                     try {
                         $this->clickOnElement($child);
+
                         return;
                     } catch (ElementNotInteractableException $e) {
                     }
@@ -855,63 +944,91 @@ EOF;
     }
 
     /**
-     * {@inheritdoc}
+     * @param string $xpath
+     *
+     * @return void
      */
-    public function doubleClick($xpath)
-    {
+    public function doubleClick(
+        #[Language('xpath')]
+        $xpath
+    ) {
         $element = $this->findElement($xpath);
         $this->webDriver->action()->doubleClick($element)->perform();
     }
 
     /**
-     * {@inheritdoc}
+     * @param string $xpath
+     *
+     * @return void
      */
-    public function rightClick($xpath)
-    {
+    public function rightClick(
+        #[Language('xpath')]
+        $xpath
+    ) {
         $element = $this->findElement($xpath);
         $this->webDriver->action()->contextClick($element)->perform();
     }
 
     /**
-     * {@inheritdoc}
+     * @param string $xpath
+     * @param string $path
+     *
+     * @return RemoteWebElement
+     *
+     * @throws DriverException
      */
-    public function attachFile($xpath, $path)
-    {
+    public function attachFile(
+        #[Language('xpath')]
+        $xpath,
+        $path
+    ) {
         $element = $this->findElement($xpath);
         $this->ensureInputType($element, $xpath, 'file', 'attach a file on');
 
         $element->setFileDetector(new LocalFileDetector());
+
         return $element->sendKeys($path);
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function isVisible($xpath)
-    {
+    public function isVisible(
+        #[Language('xpath')]
+        $xpath
+    ) {
         $element = $this->findElement($xpath);
+
         return $element->isDisplayed();
     }
 
     /**
-     * {@inheritdoc}
+     * @param string $xpath
+     *
+     * @return void
      */
-    public function mouseOver($xpath)
-    {
+    public function mouseOver(
+        #[Language('xpath')]
+        $xpath
+    ) {
         $element = $this->findElement($xpath);
         $this->webDriver->action()->moveToElement($element)->perform();
     }
 
+    /**
+     * @return void
+     */
     private function mouseOverElement(WebDriverElement $element)
     {
         $this->webDriver->action()->moveToElement($element)->perform();
     }
 
     /**
-     * {@inheritdoc}
+     * @param string $xpath
+     *
+     * @return void
      */
-    public function focus($xpath)
-    {
+    public function focus(
+        #[Language('xpath')]
+        $xpath
+    ) {
         $element = $this->findElement($xpath);
         $action = $this->webDriver->action();
 
@@ -922,10 +1039,14 @@ EOF;
     }
 
     /**
-     * {@inheritdoc}
+     * @param string $xpath
+     *
+     * @return void
      */
-    public function blur($xpath)
-    {
+    public function blur(
+        #[Language('xpath')]
+        $xpath
+    ) {
         $element = $this->findElement($xpath);
 
         // @see https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement/blur
@@ -933,10 +1054,19 @@ EOF;
     }
 
     /**
-     * {@inheritdoc}
+     * @param string      $xpath
+     * @param string      $char
+     * @param string|null $modifier
+     *
+     * @return void
      */
-    public function keyPress($xpath, $char, $modifier = null)
-    {
+    public function keyPress(
+        #[Language('xpath')]
+        $xpath,
+
+        $char,
+        $modifier = null
+    ) {
         $this->sendKey($xpath, $char, $modifier);
     }
 
@@ -948,21 +1078,25 @@ EOF;
      * must be called to release the modifier.
      *
      * @param string $xpath
-     * @param string $key Either {@link Keys::SHIFT}, {@link Keys::ALT} or {@link Keys::CONTROL}.
-     *                    If the provided key is none of those, {@link InvalidArgumentException} is thrown.
-     * @param null $modifier @deprecated
-     *
-     * @throws \InvalidArgumentException
+     * @param string $char     Either {@link Keys::SHIFT}, {@link Keys::ALT} or {@link Keys::CONTROL}.
+     *                         If the provided key is none of those, {@link InvalidArgumentException} is thrown.
+     * @param null   $modifier @deprecated
      *
      * @return void
+     *
+     * @throws \InvalidArgumentException
      */
-    public function keyDown($xpath, $key, $modifier = null)
-    {
+    public function keyDown(
+        #[Language('xpath')]
+        $xpath,
+        $char,
+        $modifier = null
+    ) {
         // Own implementation of https://github.com/php-webdriver/php-webdriver/pull/803
         $element = $this->findElement($xpath);
 
         $action = $this->webDriver->action();
-        $keyModifier = $this->keyModifier($key);
+        $keyModifier = $this->keyModifier($char);
 
         if (!in_array($keyModifier, self::MODIFIER_KEYS, true)) {
             throw new \InvalidArgumentException('Key Down / Up events only make sense for modifier keys.');
@@ -977,22 +1111,25 @@ EOF;
      * behaviour.
      *
      * @param string $xpath
-     * @param string $key Either {@link Keys::SHIFT}, {@link Keys::ALT} or {@link Keys::CONTROL}.
-     *                    If the provided key is none of those, {@link InvalidArgumentException} is thrown.
-     *
-     * @param null $modifier @deprecated
-     *
-     * @throws \InvalidArgumentException
+     * @param string $char     Either {@link Keys::SHIFT}, {@link Keys::ALT} or {@link Keys::CONTROL}.
+     *                         If the provided key is none of those, {@link InvalidArgumentException} is thrown.
+     * @param null   $modifier @deprecated
      *
      * @return void
+     *
+     * @throws \InvalidArgumentException
      */
-    public function keyUp($xpath, $key, $modifier = null)
-    {
+    public function keyUp(
+        #[Language('xpath')]
+        $xpath,
+        $char,
+        $modifier = null
+    ) {
         // Own implementation of https://github.com/php-webdriver/php-webdriver/pull/803
         $element = $this->findElement($xpath);
 
         $action = $this->webDriver->action();
-        $keyModifier = $this->keyModifier($key);
+        $keyModifier = $this->keyModifier($char);
 
         if (!in_array($keyModifier, self::MODIFIER_KEYS, true)) {
             throw new \InvalidArgumentException('Key Down / Up events only make sense for modifier keys.');
@@ -1003,7 +1140,10 @@ EOF;
     }
 
     /**
-     * {@inheritdoc}
+     * @param string $sourceXpath
+     * @param string $destinationXpath
+     *
+     * @return void
      */
     public function dragTo($sourceXpath, $destinationXpath)
     {
@@ -1016,23 +1156,32 @@ EOF;
     }
 
     /**
-     * {@inheritdoc}
+     * @param string $script
+     *
+     * @return void
      */
     public function executeScript($script)
     {
-        if (preg_match('/^function[\s\(]/', $script)) {
+        if (preg_match('/^function[\s(]/', $script)) {
             $script = preg_replace('/;$/', '', $script);
-            $script = '(' . $script . ')';
+            $script = '('.$script.')';
         }
 
         $this->webDriver->executeScript($script);
     }
 
+    /**
+     * @param string $script
+     *
+     * @return void
+     *
+     * @throws DriverException
+     */
     public function executeAsyncScript($script)
     {
-        if (preg_match('/^function[\s\(]/', $script)) {
+        if (preg_match('/^function[\s(]/', $script)) {
             $script = preg_replace('/;$/', '', $script);
-            $script = '(' . $script . ')';
+            $script = '('.$script.')';
         }
 
         try {
@@ -1042,24 +1191,18 @@ EOF;
         }
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function evaluateScript($script)
     {
         if (0 !== strpos(trim($script), 'return ')) {
-            $script = 'return ' . $script;
+            $script = 'return '.$script;
         }
 
         return $this->webDriver->executeScript($script);
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function wait($timeout, $condition)
     {
-        $seconds = $timeout / 1000.0;
+        $seconds = (int) ($timeout / 1000.0);
         $wait = $this->webDriver->wait($seconds);
 
         if (is_string($condition)) {
@@ -1071,40 +1214,50 @@ EOF;
 
         try {
             return (bool) $wait->until($condition);
-        } catch (TimeOutException $e) {
+        } catch (\Facebook\WebDriver\Exception\TimeoutException $e) {
             return false;
         }
     }
 
     /**
-     * {@inheritdoc}
+     * @param float|int   $width
+     * @param float|int   $height
+     * @param string|null $name
+     *
+     * @return void
+     *
+     * @throws UnsupportedDriverActionException
      */
     public function resizeWindow($width, $height, $name = null)
     {
         $dimension = new WebDriverDimension($width, $height);
         if ($name) {
-            throw new UnsupportedDriverActionException('Named windows are not supported yet');
+            throw new UnsupportedDriverActionException('Named windows are not supported yet', $this);
         }
 
         $this->webDriver->manage()->window()->setSize($dimension);
     }
 
     /**
-     * {@inheritdoc}
+     * @return void
      */
-    public function submitForm($xpath)
-    {
+    public function submitForm(
+        #[Language('xpath')]
+        $xpath
+    ) {
         $element = $this->findElement($xpath);
         $element->submit();
     }
 
     /**
-     * {@inheritdoc}
+     * @return void
+     *
+     * @throws UnsupportedDriverActionException
      */
     public function maximizeWindow($name = null)
     {
         if ($name) {
-            throw new UnsupportedDriverActionException('Named window is not supported');
+            throw new UnsupportedDriverActionException('Named window is not supported', $this);
         }
 
         $this->webDriver->manage()->window()->maximize();
@@ -1129,23 +1282,31 @@ EOF;
      *
      * @return RemoteWebElement
      */
-    private function findElement($xpath)
-    {
+    private function findElement(
+        #[Language('xpath')]
+        $xpath
+    ) {
         return $this->webDriver->findElement(WebDriverBy::xpath($xpath));
     }
 
     /**
-     * Ensures the element is a checkbox
+     * Ensures the element is a checkbox.
      *
-     * @param WebDriverElement $element
-     * @param string           $xpath
-     * @param string           $type
-     * @param string           $action
+     * @param string $xpath
+     * @param string $type
+     * @param string $action
+     *
+     * @return void
      *
      * @throws DriverException
      */
-    private function ensureInputType(WebDriverElement $element, $xpath, $type, $action)
-    {
+    private function ensureInputType(
+        WebDriverElement $element,
+        #[Language('xpath')]
+        $xpath,
+        $type,
+        $action
+    ) {
         if ('input' !== strtolower($element->getTagName()) || $type !== strtolower($element->getAttribute('type') ?: 'text')) {
             $message = 'Impossible to %s the element with XPath "%s" as it is not a %s input';
 
@@ -1154,7 +1315,7 @@ EOF;
     }
 
     /**
-     * Converts alt/ctrl/shift/meta to corresponded Keys::* constant
+     * Converts alt/ctrl/shift/meta to corresponded Keys::* constant.
      *
      * @param string $modifier
      *
@@ -1162,21 +1323,21 @@ EOF;
      */
     private function keyModifier($modifier)
     {
-        if ($modifier === 'alt') {
+        if ('alt' === $modifier) {
             $modifier = Keys::ALT;
-        } else if ($modifier === 'left alt') {
+        } elseif ('left alt' === $modifier) {
             $modifier = Keys::LEFT_ALT;
-        } else if ($modifier === 'ctrl') {
+        } elseif ('ctrl' === $modifier) {
             $modifier = Keys::CONTROL;
-        } else if ($modifier === 'left ctrl') {
+        } elseif ('left ctrl' === $modifier) {
             $modifier = Keys::LEFT_CONTROL;
-        } else if ($modifier === 'shift') {
+        } elseif ('shift' === $modifier) {
             $modifier = Keys::SHIFT;
-        } else if ($modifier === 'left shift') {
+        } elseif ('left shift' === $modifier) {
             $modifier = Keys::LEFT_SHIFT;
-        } else if ($modifier === 'meta') {
+        } elseif ('meta' === $modifier) {
             $modifier = Keys::META;
-        } else if ($modifier === 'command') {
+        } elseif ('command' === $modifier) {
             $modifier = Keys::COMMAND;
         }
 
@@ -1184,7 +1345,7 @@ EOF;
     }
 
     /**
-     * Decodes char
+     * Decodes char.
      *
      * @param int|string $char if int is passed it will be converted to char using `chr` function
      *
@@ -1200,15 +1361,21 @@ EOF;
     }
 
     /**
-     * @param $xpath
-     * @param $char
-     * @param $modifier
+     * @param string $xpath
+     * @param string $char
+     * @param string $modifier
+     *
+     * @return void
      */
-    private function sendKey($xpath, $char, $modifier)
-    {
+    private function sendKey(
+        #[Language('xpath')]
+        $xpath,
+        $char,
+        $modifier
+    ) {
         $element = $this->findElement($xpath);
         $char = $this->decodeChar($char);
-        $element->sendKeys(($modifier ? $this->keyModifier($modifier) : '') . $char);
+        $element->sendKeys(($modifier ? $this->keyModifier($modifier) : '').$char);
     }
 
     public function getCurrentPromptOrAlert(): ?WebDriverAlert

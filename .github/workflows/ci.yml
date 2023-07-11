@@ -15,16 +15,44 @@ defaults:
     shell: bash
 
 jobs:
+  static:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        php: [ 8.2 ]
+    steps:
+      - uses: actions/checkout@v3
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          coverage: none
+          extensions: zip, :xdebug
+          tools: composer
+      - id: composer-cache
+        run: echo "::set-output name=directory::$(composer config cache-dir)"
+      - uses: actions/cache@v3
+        with:
+          path: ${{ steps.composer-cache.outputs.directory }}
+          key: ${{ matrix.php }}-composer-${{ hashFiles('**/composer.lock') }}
+          restore-keys: ${{ matrix.php }}-composer-
+      - run: composer update --prefer-dist
+      - name: Style
+        run: |
+          ./bin/php-cs-fixer fix -v --diff --dry-run --rules=@Symfony
+      - name: Static
+        run: |
+          ./bin/phpstan analyze
   tests:
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
-        php: [ 7.4, 8.0, 8.1 ]
+        php: [ 8.0, 8.1, 8.2 ]
         browser: [ chrome, firefox ]
         experimental: [false]
         include:
-          - php: 8.2
+          - php: 8.3
             experimental: true
             browser: chrome
     continue-on-error: ${{ matrix.experimental }}
@@ -104,7 +132,7 @@ jobs:
           SYMFONY_DEPRECATIONS_HELPER: 'max[total]=999999'
           BROWSER_NAME: ${{ matrix.browser }}
         run: |
-          ./vendor/bin/simple-phpunit -v
+          ./bin/phpunit -v
 
       - name: Archive logs artifacts
         if: ${{ always() }}
