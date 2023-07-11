@@ -29,6 +29,7 @@ use Facebook\WebDriver\WebDriverElement;
 use Facebook\WebDriver\WebDriverKeys as Keys;
 use Facebook\WebDriver\WebDriverRadios;
 use Facebook\WebDriver\WebDriverSelect;
+use JetBrains\PhpStorm\Language;
 
 /**
  * WebDriver driver.
@@ -208,11 +209,14 @@ class WebDriver extends CoreDriver
      * @param string $xpath  the xpath to search with
      * @param string $script the script to execute
      * @param bool   $sync   whether to run the script synchronously (default is TRUE)
-     *
-     * @return mixed
      */
-    private function executeJsOnXpath($xpath, $script, $sync = true)
-    {
+    private function executeJsOnXpath(
+        #[Language('xpath')]
+        string $xpath,
+        #[Language('javascript')]
+        string $script,
+        bool $sync = true
+    ): mixed {
         $element = $this->findElement($xpath);
 
         return $this->executeJsOnElement($element, $script, $sync);
@@ -227,10 +231,8 @@ class WebDriver extends CoreDriver
      * @param WebDriverElement $element the webdriver element
      * @param string           $script  the script to execute
      * @param bool             $sync    whether to run the script synchronously (default is TRUE)
-     *
-     * @return mixed
      */
-    private function executeJsOnElement(WebDriverElement $element, $script, $sync = true)
+    private function executeJsOnElement(WebDriverElement $element, $script, $sync = true): mixed
     {
         $script = str_replace('{{ELEMENT}}', 'arguments[0]', $script);
 
@@ -480,27 +482,20 @@ class WebDriver extends CoreDriver
         return $this->webDriver->takeScreenshot($save_as);
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function getWindowNames()
     {
         return $this->webDriver->getWindowHandles();
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function getWindowName()
     {
         return $this->webDriver->getWindowHandle();
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function findElementXpaths($xpath)
-    {
+    public function findElementXpaths(
+        #[Language('xpath')]
+        $xpath
+    ) {
         $nodes = $this->webDriver->findElements(WebDriverBy::xpath($xpath));
 
         $elements = [];
@@ -511,21 +506,19 @@ class WebDriver extends CoreDriver
         return $elements;
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getTagName($xpath)
-    {
+    public function getTagName(
+        #[Language('xpath')]
+        $xpath
+    ) {
         $element = $this->findElement($xpath);
 
         return $element->getTagName();
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function getText($xpath)
-    {
+    public function getText(
+        #[Language('xpath')]
+        $xpath
+    ) {
         $element = $this->findElement($xpath);
         $text = $element->getText();
 
@@ -536,21 +529,21 @@ class WebDriver extends CoreDriver
 
     /**
      * @param string $xpath
-     *
-     * @return mixed
      */
-    public function getHtml($xpath)
-    {
+    public function getHtml(
+        #[Language('xpath')]
+        $xpath
+    ) {
         return $this->executeJsOnXpath($xpath, 'return {{ELEMENT}}.innerHTML;');
     }
 
     /**
      * @param string $xpath
-     *
-     * @return mixed
      */
-    public function getOuterHtml($xpath)
-    {
+    public function getOuterHtml(
+        #[Language('xpath')]
+        $xpath
+    ) {
         return $this->executeJsOnXpath($xpath, 'return {{ELEMENT}}.outerHTML;');
     }
 
@@ -560,8 +553,11 @@ class WebDriver extends CoreDriver
      *
      * @return string|true|null
      */
-    public function getAttribute($xpath, $name)
-    {
+    public function getAttribute(
+        #[Language('xpath')]
+        $xpath,
+        $name
+    ) {
         $element = $this->findElement($xpath);
 
         /**
@@ -599,8 +595,10 @@ class WebDriver extends CoreDriver
      * @throws \Facebook\WebDriver\Exception\InvalidElementStateException
      * @throws \Facebook\WebDriver\Exception\UnexpectedTagNameException
      */
-    public function getValue($xpath)
-    {
+    public function getValue(
+        #[Language('xpath')]
+        $xpath
+    ) {
         $element = $this->findElement($xpath);
         $elementName = strtolower($element->getTagName());
         $elementType = strtolower($element->getAttribute('type') ?: 'text');
@@ -662,8 +660,11 @@ class WebDriver extends CoreDriver
      * @throws \Facebook\WebDriver\Exception\UnexpectedTagNameException
      * @throws \Facebook\WebDriver\Exception\UnsupportedOperationException
      */
-    public function setValue($xpath, $value)
-    {
+    public function setValue(
+        #[Language('xpath')]
+        $xpath,
+        $value
+    ) {
         $element = $this->findElement($xpath);
         $elementName = strtolower($element->getTagName());
 
@@ -760,8 +761,10 @@ EOF;
      * @throws DriverException
      * @throws ElementNotInteractableException
      */
-    public function check($xpath)
-    {
+    public function check(
+        #[Language('xpath')]
+        $xpath
+    ) {
         $element = $this->findElement($xpath);
         $this->ensureInputType($element, $xpath, 'checkbox', 'check');
 
@@ -780,8 +783,10 @@ EOF;
      * @throws DriverException
      * @throws ElementNotInteractableException
      */
-    public function uncheck($xpath)
-    {
+    public function uncheck(
+        #[Language('xpath')]
+        $xpath
+    ) {
         $element = $this->findElement($xpath);
         $this->ensureInputType($element, $xpath, 'checkbox', 'uncheck');
 
@@ -797,8 +802,10 @@ EOF;
      *
      * @return bool
      */
-    public function isChecked($xpath)
-    {
+    public function isChecked(
+        #[Language('xpath')]
+        $xpath
+    ) {
         return $this->isSelected($xpath);
     }
 
@@ -815,8 +822,12 @@ EOF;
      * @throws \Facebook\WebDriver\Exception\UnexpectedTagNameException
      * @throws \Facebook\WebDriver\Exception\UnsupportedOperationException
      */
-    public function selectOption($xpath, $value, $multiple = false)
-    {
+    public function selectOption(
+        #[Language('xpath')]
+        $xpath,
+        $value,
+        $multiple = false
+    ) {
         $element = $this->findElement($xpath);
         $tagName = strtolower($element->getTagName());
 
@@ -851,8 +862,10 @@ EOF;
      *
      * @return bool
      */
-    public function isSelected($xpath)
-    {
+    public function isSelected(
+        #[Language('xpath')]
+        $xpath
+    ) {
         $element = $this->findElement($xpath);
 
         return $element->isSelected();
@@ -863,8 +876,10 @@ EOF;
      *
      * @throws ElementNotInteractableException
      */
-    public function click($xpath)
-    {
+    public function click(
+        #[Language('xpath')]
+        $xpath
+    ) {
         $element = $this->findElement($xpath);
         $this->clickOnElement($element);
     }
@@ -933,8 +948,10 @@ EOF;
      *
      * @return void
      */
-    public function doubleClick($xpath)
-    {
+    public function doubleClick(
+        #[Language('xpath')]
+        $xpath
+    ) {
         $element = $this->findElement($xpath);
         $this->webDriver->action()->doubleClick($element)->perform();
     }
@@ -944,8 +961,10 @@ EOF;
      *
      * @return void
      */
-    public function rightClick($xpath)
-    {
+    public function rightClick(
+        #[Language('xpath')]
+        $xpath
+    ) {
         $element = $this->findElement($xpath);
         $this->webDriver->action()->contextClick($element)->perform();
     }
@@ -958,8 +977,11 @@ EOF;
      *
      * @throws DriverException
      */
-    public function attachFile($xpath, $path)
-    {
+    public function attachFile(
+        #[Language('xpath')]
+        $xpath,
+        $path
+    ) {
         $element = $this->findElement($xpath);
         $this->ensureInputType($element, $xpath, 'file', 'attach a file on');
 
@@ -968,11 +990,10 @@ EOF;
         return $element->sendKeys($path);
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    public function isVisible($xpath)
-    {
+    public function isVisible(
+        #[Language('xpath')]
+        $xpath
+    ) {
         $element = $this->findElement($xpath);
 
         return $element->isDisplayed();
@@ -983,8 +1004,10 @@ EOF;
      *
      * @return void
      */
-    public function mouseOver($xpath)
-    {
+    public function mouseOver(
+        #[Language('xpath')]
+        $xpath
+    ) {
         $element = $this->findElement($xpath);
         $this->webDriver->action()->moveToElement($element)->perform();
     }
@@ -1002,8 +1025,10 @@ EOF;
      *
      * @return void
      */
-    public function focus($xpath)
-    {
+    public function focus(
+        #[Language('xpath')]
+        $xpath
+    ) {
         $element = $this->findElement($xpath);
         $action = $this->webDriver->action();
 
@@ -1018,8 +1043,10 @@ EOF;
      *
      * @return void
      */
-    public function blur($xpath)
-    {
+    public function blur(
+        #[Language('xpath')]
+        $xpath
+    ) {
         $element = $this->findElement($xpath);
 
         // @see https://developer.mozilla.org/en-US/docs/Web/API/HTMLElement/blur
@@ -1033,8 +1060,13 @@ EOF;
      *
      * @return void
      */
-    public function keyPress($xpath, $char, $modifier = null)
-    {
+    public function keyPress(
+        #[Language('xpath')]
+        $xpath,
+
+        $char,
+        $modifier = null
+    ) {
         $this->sendKey($xpath, $char, $modifier);
     }
 
@@ -1046,7 +1078,7 @@ EOF;
      * must be called to release the modifier.
      *
      * @param string $xpath
-     * @param string $key      Either {@link Keys::SHIFT}, {@link Keys::ALT} or {@link Keys::CONTROL}.
+     * @param string $char     Either {@link Keys::SHIFT}, {@link Keys::ALT} or {@link Keys::CONTROL}.
      *                         If the provided key is none of those, {@link InvalidArgumentException} is thrown.
      * @param null   $modifier @deprecated
      *
@@ -1054,13 +1086,17 @@ EOF;
      *
      * @throws \InvalidArgumentException
      */
-    public function keyDown($xpath, $key, $modifier = null)
-    {
+    public function keyDown(
+        #[Language('xpath')]
+        $xpath,
+        $char,
+        $modifier = null
+    ) {
         // Own implementation of https://github.com/php-webdriver/php-webdriver/pull/803
         $element = $this->findElement($xpath);
 
         $action = $this->webDriver->action();
-        $keyModifier = $this->keyModifier($key);
+        $keyModifier = $this->keyModifier($char);
 
         if (!in_array($keyModifier, self::MODIFIER_KEYS, true)) {
             throw new \InvalidArgumentException('Key Down / Up events only make sense for modifier keys.');
@@ -1075,7 +1111,7 @@ EOF;
      * behaviour.
      *
      * @param string $xpath
-     * @param string $key      Either {@link Keys::SHIFT}, {@link Keys::ALT} or {@link Keys::CONTROL}.
+     * @param string $char     Either {@link Keys::SHIFT}, {@link Keys::ALT} or {@link Keys::CONTROL}.
      *                         If the provided key is none of those, {@link InvalidArgumentException} is thrown.
      * @param null   $modifier @deprecated
      *
@@ -1083,13 +1119,17 @@ EOF;
      *
      * @throws \InvalidArgumentException
      */
-    public function keyUp($xpath, $key, $modifier = null)
-    {
+    public function keyUp(
+        #[Language('xpath')]
+        $xpath,
+        $char,
+        $modifier = null
+    ) {
         // Own implementation of https://github.com/php-webdriver/php-webdriver/pull/803
         $element = $this->findElement($xpath);
 
         $action = $this->webDriver->action();
-        $keyModifier = $this->keyModifier($key);
+        $keyModifier = $this->keyModifier($char);
 
         if (!in_array($keyModifier, self::MODIFIER_KEYS, true)) {
             throw new \InvalidArgumentException('Key Down / Up events only make sense for modifier keys.');
@@ -1122,7 +1162,7 @@ EOF;
      */
     public function executeScript($script)
     {
-        if (preg_match('/^function[\s\(]/', $script)) {
+        if (preg_match('/^function[\s(]/', $script)) {
             $script = preg_replace('/;$/', '', $script);
             $script = '('.$script.')';
         }
@@ -1139,7 +1179,7 @@ EOF;
      */
     public function executeAsyncScript($script)
     {
-        if (preg_match('/^function[\s\(]/', $script)) {
+        if (preg_match('/^function[\s(]/', $script)) {
             $script = preg_replace('/;$/', '', $script);
             $script = '('.$script.')';
         }
@@ -1151,9 +1191,6 @@ EOF;
         }
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function evaluateScript($script)
     {
         if (0 !== strpos(trim($script), 'return ')) {
@@ -1163,9 +1200,6 @@ EOF;
         return $this->webDriver->executeScript($script);
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function wait($timeout, $condition)
     {
         $seconds = (int) ($timeout / 1000.0);
@@ -1207,8 +1241,10 @@ EOF;
     /**
      * @return void
      */
-    public function submitForm($xpath)
-    {
+    public function submitForm(
+        #[Language('xpath')]
+        $xpath
+    ) {
         $element = $this->findElement($xpath);
         $element->submit();
     }
@@ -1246,8 +1282,10 @@ EOF;
      *
      * @return RemoteWebElement
      */
-    private function findElement($xpath)
-    {
+    private function findElement(
+        #[Language('xpath')]
+        $xpath
+    ) {
         return $this->webDriver->findElement(WebDriverBy::xpath($xpath));
     }
 
@@ -1262,8 +1300,13 @@ EOF;
      *
      * @throws DriverException
      */
-    private function ensureInputType(WebDriverElement $element, $xpath, $type, $action)
-    {
+    private function ensureInputType(
+        WebDriverElement $element,
+        #[Language('xpath')]
+        $xpath,
+        $type,
+        $action
+    ) {
         if ('input' !== strtolower($element->getTagName()) || $type !== strtolower($element->getAttribute('type') ?: 'text')) {
             $message = 'Impossible to %s the element with XPath "%s" as it is not a %s input';
 
@@ -1324,8 +1367,12 @@ EOF;
      *
      * @return void
      */
-    private function sendKey($xpath, $char, $modifier)
-    {
+    private function sendKey(
+        #[Language('xpath')]
+        $xpath,
+        $char,
+        $modifier
+    ) {
         $element = $this->findElement($xpath);
         $char = $this->decodeChar($char);
         $element->sendKeys(($modifier ? $this->keyModifier($modifier) : '').$char);

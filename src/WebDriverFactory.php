@@ -7,9 +7,6 @@ use Symfony\Component\DependencyInjection\Definition;
 
 class WebDriverFactory extends Selenium2Factory
 {
-    /**
-     * {@inheritdoc}
-     */
     public function getDriverName()
     {
         return 'webdriver';

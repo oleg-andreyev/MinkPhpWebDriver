@@ -21,9 +21,6 @@ class WebDriverConfig extends AbstractConfig
         return new self();
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function createDriver()
     {
         $browser = getenv('BROWSER_NAME') ?: 'firefox';
@@ -75,9 +72,6 @@ class WebDriverConfig extends AbstractConfig
         return $this->driver = $driver;
     }
 
-    /**
-     * {@inheritdoc}
-     */
     public function skipMessage($testCase, $test)
     {
         $desiredCapabilities = $this->driver->getDesiredCapabilities();
@@ -98,9 +92,6 @@ class WebDriverConfig extends AbstractConfig
         return parent::skipMessage($testCase, $test);
     }
 
-    /**
-     * {@inheritdoc}
-     */
     protected function supportsCss()
     {
         return true;
