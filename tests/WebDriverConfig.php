@@ -40,6 +40,9 @@ class WebDriverConfig extends AbstractConfig
             }
         } else if ($browser === 'safari') {
             $desiredCapabilities = DesiredCapabilities::safari();
+            if (($_SERVER['USE_SAFARI_TECHNOLOGY_PREVIEW'] ?? 'false') === 'true') {
+                $desiredCapabilities->setBrowserName('Safari Technology Preview');
+            }
         } else {
             $desiredCapabilities = new DesiredCapabilities();
         }
@@ -63,7 +66,8 @@ class WebDriverConfig extends AbstractConfig
                 $optionsOrProfile = $this->buildFirefoxProfile($desiredCapabilities, $optionsOrProfile, $driverOptions);
             } else if ($browser === 'safari') {
                 $optionsOrProfile = [
-                    'technologyPreview' => ($_ENV['USE_SAFARI_TECHNOLOGY_PREVIEW'] ?? 'false') === 'true',
+//                    'safari:automaticInspection' => true,
+                    'technologyPreview' => ($_SERVER['USE_SAFARI_TECHNOLOGY_PREVIEW'] ?? 'false') === 'true',
                 ];
             }
 

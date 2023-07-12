@@ -161,7 +161,11 @@ jobs:
             defaults read /Applications/Safari.app/Contents/Info CFBundleShortVersionString
           fi;
           
-          /usr/bin/safaridriver -p 4444 --diagnose &
+          if [[ "${{ matrix.use_safari_technology_preview }}" == true ]]; then
+            /Applications/Safari\ Technology\ Preview.app/Contents/MacOS/safaridriver -p 4444 --diagnose &
+          else 
+            /usr/bin/safaridriver -p 4444 --diagnose &
+          fi;
           
           while ! nc -z localhost 4444 </dev/null; do echo Waiting for driver to start...; sleep 1; done
 

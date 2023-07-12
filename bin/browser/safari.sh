@@ -12,7 +12,12 @@ fi
 
 rm -rf ~/Library/Logs/com.apple.WebDriver/*
 
-/usr/bin/safaridriver --port=4444 --diagnose &
+if [[ "$USE_SAFARI_TECHNOLOGY_PREVIEW" == true ]]; then
+  /Applications/Safari\ Technology\ Preview.app/Contents/MacOS/safaridriver -p 4444 --diagnose &
+else
+  /usr/bin/safaridriver -p 4444 --diagnose &
+fi;
+
 SAFARIDRIVER_PID=$!
 
 function stop {
@@ -20,5 +25,10 @@ function stop {
 }
 
 trap stop SIGINT
+trap stop ERR
 
-tail -f ~/Library/Logs/com.apple.WebDriver/* /dev/null
+# generate first log
+sleep 5
+curl 127.0.0.1:4444 -vvv
+
+tail -F ~/Library/Logs/com.apple.WebDriver/*
