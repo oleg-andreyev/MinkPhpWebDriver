@@ -684,8 +684,8 @@ class WebDriver extends CoreDriver
     }
 
     /**
-     * @param string          $xpath
-     * @param string|string[] $value
+     * @param string               $xpath
+     * @param string|bool|string[] $value
      *
      * @return void
      *
@@ -705,6 +705,10 @@ class WebDriver extends CoreDriver
         $elementName = strtolower($element->getTagName());
 
         if ('select' === $elementName) {
+            if (!is_string($value) && !is_array($value)) {
+                throw new DriverException(sprintf('Impossible to set value an element with XPath "%s" as the value is not a string or an array.', $xpath));
+            }
+
             $select = new WebDriverSelect($element);
 
             if (is_array($value)) {
@@ -737,6 +741,10 @@ class WebDriver extends CoreDriver
             }
 
             if ('radio' === $elementType) {
+                if (!is_string($value)) {
+                    throw new DriverException('Radio button value must be a string.');
+                }
+
                 $radios = new WebDriverRadios($element);
                 $radios->selectByValue($value);
 
@@ -744,6 +752,10 @@ class WebDriver extends CoreDriver
             }
 
             if ('file' === $elementType) {
+                if (!is_string($value)) {
+                    throw new DriverException('File name must be a string.');
+                }
+
                 $this->attachFile($xpath, $value);
 
                 return;
@@ -765,6 +777,20 @@ class WebDriver extends CoreDriver
 
                 return;
             }
+
+            if (
+                'text' === $elementType
+                && !is_string($value)
+            ) {
+                throw new DriverException(sprintf('Impossible to set value with type %s an element with XPath "%s" of input[type=text]', gettype($value), $xpath));
+            }
+        }
+
+        if (
+            'textarea' === $elementName
+            && !is_string($value)
+        ) {
+            throw new DriverException(sprintf('Impossible to set value with type %s an element with XPath "%s" of textarea', gettype($value), $xpath));
         }
 
         $value = (string) $value;

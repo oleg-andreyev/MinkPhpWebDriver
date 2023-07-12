@@ -38,3 +38,4 @@ Follow https://github.com/shivammathur/setup-php#local-testing-setup
 ## Copyright
 
 Copyright (c) 2023 Oleg Andreyev <oleg@andreyev.lv>
+

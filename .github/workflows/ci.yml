@@ -1,10 +1,5 @@
 on:
-  push:
-    branches:
-      - master
-  pull_request:
-    branches:
-      - master
+  push: ~
 
 env:
   DRIVER_URL: "http://localhost:4444"
