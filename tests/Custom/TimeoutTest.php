@@ -6,7 +6,6 @@ use Behat\Mink\Exception\DriverException;
 use Behat\Mink\Session;
 use Behat\Mink\Tests\Driver\OnNotSuccessfulTrait;
 use Behat\Mink\Tests\Driver\TestCase;
-use Facebook\WebDriver\Exception\TimeoutException;
 use OAndreyev\Mink\Driver\WebDriver;
 
 class TimeoutTest extends TestCase
@@ -38,7 +37,7 @@ class TimeoutTest extends TestCase
 
     public function testInvalidTimeoutSettingThrowsException(): void
     {
-        if (getenv('BROWSER_NAME') === 'safari') {
+        if ('safari' === getenv('BROWSER_NAME')) {
             $this->markTestSkipped('\OAndreyev\Mink\Tests\Driver\Custom\TimeoutTest::testInvalidTimeoutSettingThrowsException is skipped due to Safari hangs');
         }
 
@@ -49,7 +48,7 @@ class TimeoutTest extends TestCase
 
     public function testShortTimeoutDoesNotWaitForElementToAppear(): void
     {
-        if (getenv('BROWSER_NAME') === 'safari') {
+        if ('safari' === getenv('BROWSER_NAME')) {
             $this->markTestSkipped('\OAndreyev\Mink\Tests\Driver\Custom\TimeoutTest::testShortTimeoutDoesNotWaitForElementToAppear is skipped due to Safari hangs');
         }
 
@@ -65,7 +64,7 @@ class TimeoutTest extends TestCase
 
     public function testLongTimeoutWaitsForElementToAppear(): void
     {
-        if (getenv('BROWSER_NAME') === 'safari') {
+        if ('safari' === getenv('BROWSER_NAME')) {
             $this->markTestSkipped('\OAndreyev\Mink\Tests\Driver\Custom\TimeoutTest::testShortTimeoutDoesNotWaitForElementToAppear is skipped due to Safari hangs');
         }
 
@@ -91,7 +90,7 @@ class TimeoutTest extends TestCase
         $this->session->visit($this->pathTo('/page_load.php'));
         sleep(1);
         $this->assertStringContainsString('success', $this->session->getPage()->getContent());
-        $this->driver->setTimeouts(array('pageLoad' => 1));
+        $this->driver->setTimeouts(['pageLoad' => 1]);
         $this->session->visit($this->pathTo('/page_load.php?sleep=2'));
     }
 

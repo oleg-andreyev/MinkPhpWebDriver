@@ -38,7 +38,7 @@ class WebDriverConfig extends AbstractConfig
             if ('msedge' === $browser) {
                 $desiredCapabilities->setBrowserName('msedge');
             }
-        } else if ($browser === 'safari') {
+        } elseif ('safari' === $browser) {
             $desiredCapabilities = DesiredCapabilities::safari();
             if (($_SERVER['USE_SAFARI_TECHNOLOGY_PREVIEW'] ?? 'false') === 'true') {
                 $desiredCapabilities->setBrowserName('Safari Technology Preview');
@@ -51,7 +51,7 @@ class WebDriverConfig extends AbstractConfig
             'firefox' => FirefoxDriver::PROFILE,
             'chrome' => ChromeOptions::CAPABILITY_W3C,
             'msedge' => ChromeOptions::CAPABILITY_W3C,
-            'safari' => 'safari.options'
+            'safari' => 'safari.options',
         ];
 
         if (isset($capabilityMap[$browser])) {
@@ -64,7 +64,7 @@ class WebDriverConfig extends AbstractConfig
             } elseif ('firefox' === $browser) {
                 $optionsOrProfile = new FirefoxProfile();
                 $optionsOrProfile = $this->buildFirefoxProfile($desiredCapabilities, $optionsOrProfile, $driverOptions);
-            } else if ($browser === 'safari') {
+            } elseif ('safari' === $browser) {
                 $optionsOrProfile = [
 //                    'safari:automaticInspection' => true,
                     'technologyPreview' => ($_SERVER['USE_SAFARI_TECHNOLOGY_PREVIEW'] ?? 'false') === 'true',

@@ -59,7 +59,7 @@ class ScreenshotListener implements TestListener
 
     private function makeScreenshot(Test $test): void
     {
-        if (getenv('BROWSER_NAME') === 'safari') {
+        if ('safari' === getenv('BROWSER_NAME')) {
             return;
         }
 

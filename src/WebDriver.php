@@ -90,7 +90,7 @@ class WebDriver extends CoreDriver
                 $this->desiredCapabilities = DesiredCapabilities::firefox();
             } elseif ('chrome' === $browserName) {
                 $this->desiredCapabilities = DesiredCapabilities::chrome();
-            } else if ($browserName === 'safari') {
+            } elseif ('safari' === $browserName) {
                 $this->desiredCapabilities = DesiredCapabilities::safari();
             } else {
                 $this->desiredCapabilities = new DesiredCapabilities();
@@ -282,7 +282,7 @@ class WebDriver extends CoreDriver
     }
 
     /**
-     * Set timeout for the connect phase
+     * Set timeout for the connect phase.
      *
      * @param int $value Timeout in milliseconds
      */
@@ -296,7 +296,7 @@ class WebDriver extends CoreDriver
     }
 
     /**
-     * Set timeout for the connect phase
+     * Set timeout for the connect phase.
      *
      * @param int $value Timeout in milliseconds
      */
@@ -344,7 +344,7 @@ class WebDriver extends CoreDriver
     public function reset()
     {
         // if about:blank (safari just empty) we cannot delete cookies.
-        if ($this->webDriver->getCurrentURL() !== '') {
+        if ('' !== $this->webDriver->getCurrentURL()) {
             $this->webDriver->manage()->deleteAllCookies();
         }
 
@@ -418,7 +418,7 @@ class WebDriver extends CoreDriver
      */
     public function switchToWindow($name = null)
     {
-        if ($this->browserName === 'firefox' || $this->browserName === 'safari') {
+        if ('firefox' === $this->browserName || 'safari' === $this->browserName) {
             // Firefox stores window IDs rather than window names and does not provide a working way to map the ids to
             // names.
             // Each time we switch to a window, we fetch the list of window IDs, and attempt to map them.
@@ -568,6 +568,7 @@ class WebDriver extends CoreDriver
         $xpath
     ): string {
         $element = $this->findElement($xpath);
+
         return $element->getText();
     }
 
