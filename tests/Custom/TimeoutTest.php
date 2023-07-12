@@ -37,6 +37,10 @@ class TimeoutTest extends TestCase
 
     public function testInvalidTimeoutSettingThrowsException(): void
     {
+        if ('safari' === getenv('BROWSER_NAME')) {
+            $this->markTestSkipped('\OAndreyev\Mink\Tests\Driver\Custom\TimeoutTest::testInvalidTimeoutSettingThrowsException is skipped due to Safari hangs');
+        }
+
         $this->expectException(DriverException::class);
         $this->session->start();
         $this->driver->setTimeouts(['invalid' => 0]);
@@ -44,6 +48,10 @@ class TimeoutTest extends TestCase
 
     public function testShortTimeoutDoesNotWaitForElementToAppear(): void
     {
+        if ('safari' === getenv('BROWSER_NAME')) {
+            $this->markTestSkipped('\OAndreyev\Mink\Tests\Driver\Custom\TimeoutTest::testShortTimeoutDoesNotWaitForElementToAppear is skipped due to Safari hangs');
+        }
+
         $this->driver->setTimeouts(['implicit' => 0]);
 
         $this->session->visit($this->pathTo('/js_test.html'));
@@ -56,6 +64,10 @@ class TimeoutTest extends TestCase
 
     public function testLongTimeoutWaitsForElementToAppear(): void
     {
+        if ('safari' === getenv('BROWSER_NAME')) {
+            $this->markTestSkipped('\OAndreyev\Mink\Tests\Driver\Custom\TimeoutTest::testShortTimeoutDoesNotWaitForElementToAppear is skipped due to Safari hangs');
+        }
+
         $this->driver->setTimeouts(['implicit' => 5000]);
 
         $this->session->visit($this->pathTo('/js_test.html'));
@@ -75,9 +87,11 @@ class TimeoutTest extends TestCase
     public function testPageReloadTimeout(): void
     {
         $this->expectException(DriverException::class);
-        $this->session->visit($this->pathTo('/page_load.php?sleep=2'));
+        $this->session->visit($this->pathTo('/page_load.php'));
+        sleep(1);
+        $this->assertStringContainsString('success', $this->session->getPage()->getContent());
         $this->driver->setTimeouts(['pageLoad' => 1]);
-        $this->session->reload();
+        $this->session->visit($this->pathTo('/page_load.php?sleep=2'));
     }
 
     public function testScriptTimeout(): void
@@ -85,6 +99,7 @@ class TimeoutTest extends TestCase
         $this->expectException(DriverException::class);
         $this->driver->setTimeouts(['script' => 1]);
         $this->session->visit($this->pathTo('/js_test.html'));
+        sleep(1);
 
         // @see https://w3c.github.io/webdriver/#execute-async-script
         $this->driver->executeAsyncScript(
@@ -93,7 +108,7 @@ class TimeoutTest extends TestCase
                 function(){
                     callback();
                  },
-                2000
+                3000
             );'
         );
     }

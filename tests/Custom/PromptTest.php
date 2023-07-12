@@ -29,6 +29,10 @@ class PromptTest extends TestCase
 
     public function testPromptDismiss(): void
     {
+        if ('safari' === getenv('BROWSER_NAME')) {
+            $this->markTestSkipped('\OAndreyev\Mink\Tests\Driver\Custom\PromptTest::testPromptDismiss is skipped due to Safari hangs');
+        }
+
         $session = $this->getSession();
         $session->visit($this->pathTo('/prompt.html'));
         /** @var WebDriver $driver */

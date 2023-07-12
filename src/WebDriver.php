@@ -18,6 +18,7 @@ use Facebook\WebDriver\Exception\ElementNotInteractableException;
 use Facebook\WebDriver\Exception\NoSuchCookieException;
 use Facebook\WebDriver\Exception\NoSuchElementException;
 use Facebook\WebDriver\Exception\ScriptTimeoutException;
+use Facebook\WebDriver\Exception\TimeoutException;
 use Facebook\WebDriver\Remote\DesiredCapabilities;
 use Facebook\WebDriver\Remote\LocalFileDetector;
 use Facebook\WebDriver\Remote\RemoteWebDriver;
@@ -43,22 +44,11 @@ class WebDriver extends CoreDriver
         Keys::LEFT_ALT, Keys::LEFT_CONTROL, Keys::LEFT_SHIFT,
     ];
 
-    /**
-     * The WebDriver instance.
-     *
-     * @var RemoteWebDriver|null
-     */
-    private $webDriver;
+    private ?RemoteWebDriver $webDriver = null;
 
-    /**
-     * @var string
-     */
-    private $browserName;
+    private string $browserName;
 
-    /**
-     * @var DesiredCapabilities|null
-     */
-    private $desiredCapabilities;
+    private ?DesiredCapabilities $desiredCapabilities = null;
 
     /**
      * @var array{script?: int, implicit?: int, pageLoad?: int}
@@ -83,27 +73,36 @@ class WebDriver extends CoreDriver
     /**
      * Instantiates the driver.
      *
-     * @param string                    $browserName         Browser name
-     * @param array<string, mixed>|null $desiredCapabilities The desired capabilities
-     * @param string                    $wdHost              The WebDriver host
+     * @param string                                        $browserName         Browser name
+     * @param array<string, mixed>|DesiredCapabilities|null $desiredCapabilities The desired capabilities
+     * @param string                                        $wdHost              The WebDriver host
      */
-    public function __construct($browserName = 'firefox', $desiredCapabilities = null, $wdHost = 'http://localhost:4444/wd/hub')
-    {
+    public function __construct(
+        string $browserName = 'firefox',
+        array|DesiredCapabilities $desiredCapabilities = null,
+        string $wdHost = 'http://localhost:4444/wd/hub'
+    ) {
         $this->wdHost = $wdHost;
         $this->browserName = $browserName;
 
-        if ('firefox' === $browserName) {
-            $this->desiredCapabilities = DesiredCapabilities::firefox();
-        } elseif ('chrome' === $browserName) {
-            $this->desiredCapabilities = DesiredCapabilities::chrome();
-        } else {
-            $this->desiredCapabilities = new DesiredCapabilities();
-        }
-
-        if ($desiredCapabilities) {
-            foreach ($desiredCapabilities as $key => $val) {
-                $this->desiredCapabilities->setCapability($key, $val);
+        if (!$desiredCapabilities instanceof DesiredCapabilities) {
+            if ('firefox' === $browserName) {
+                $this->desiredCapabilities = DesiredCapabilities::firefox();
+            } elseif ('chrome' === $browserName) {
+                $this->desiredCapabilities = DesiredCapabilities::chrome();
+            } elseif ('safari' === $browserName) {
+                $this->desiredCapabilities = DesiredCapabilities::safari();
+            } else {
+                $this->desiredCapabilities = new DesiredCapabilities();
             }
+
+            if (is_array($desiredCapabilities)) {
+                foreach ($desiredCapabilities as $key => $val) {
+                    $this->desiredCapabilities->setCapability($key, $val);
+                }
+            }
+        } else {
+            $this->desiredCapabilities = $desiredCapabilities;
         }
     }
 
@@ -192,10 +191,7 @@ class WebDriver extends CoreDriver
         return $this->desiredCapabilities;
     }
 
-    /**
-     * @return RemoteWebDriver|null
-     */
-    public function getWebDriver()
+    public function getWebDriver(): ?RemoteWebDriver
     {
         return $this->webDriver;
     }
@@ -255,7 +251,24 @@ class WebDriver extends CoreDriver
         }
 
         try {
-            $this->webDriver = RemoteWebDriver::create($this->wdHost, $this->desiredCapabilities);
+            $this->webDriver = RemoteWebDriver::create(
+                $this->wdHost,
+                $this->desiredCapabilities,
+
+                // atm I think it's best value for connection timeout
+                // if something takes more than 5s to connect
+                // something is wrong on infrastructure-level you need to fix it
+                // otherwise this technical depth will grow
+                // if you really feel or need to override this values method `setConnectionTimeout`
+                5000,
+
+                // atm I think it's best value for connection timeout
+                // if something takes more than 15s to connect
+                // something is wrong on infrastructure-level you need to fix it
+                // otherwise this technical depth will grow
+                // if you really feel or need to override this values method `setRequestTimeout`
+                15000
+            );
             if (\count($this->timeouts)) {
                 $this->applyTimeouts();
             }
@@ -266,6 +279,34 @@ class WebDriver extends CoreDriver
         }
 
         return $this->webDriver;
+    }
+
+    /**
+     * Set timeout for the connect phase.
+     *
+     * @param int $value Timeout in milliseconds
+     */
+    public function setConnectionTimeout(int $value): void
+    {
+        if (!$this->isStarted()) {
+            return;
+        }
+
+        $this->webDriver->getCommandExecutor()->setConnectionTimeout($value);
+    }
+
+    /**
+     * Set timeout for the connect phase.
+     *
+     * @param int $value Timeout in milliseconds
+     */
+    public function setRequestTimeout(int $value): void
+    {
+        if (!$this->isStarted()) {
+            return;
+        }
+
+        $this->webDriver->getCommandExecutor()->setConnectionTimeout($value);
     }
 
     /**
@@ -302,7 +343,11 @@ class WebDriver extends CoreDriver
      */
     public function reset()
     {
-        $this->webDriver->manage()->deleteAllCookies();
+        // if about:blank (safari just empty) we cannot delete cookies.
+        if ('' !== $this->webDriver->getCurrentURL()) {
+            $this->webDriver->manage()->deleteAllCookies();
+        }
+
         // TODO: resizeWindow does not accept NULL
         $this->maximizeWindow();
         // reset timeout
@@ -373,7 +418,7 @@ class WebDriver extends CoreDriver
      */
     public function switchToWindow($name = null)
     {
-        if ('firefox' === $this->browserName) {
+        if ('firefox' === $this->browserName || 'safari' === $this->browserName) {
             // Firefox stores window IDs rather than window names and does not provide a working way to map the ids to
             // names.
             // Each time we switch to a window, we fetch the list of window IDs, and attempt to map them.
@@ -515,16 +560,16 @@ class WebDriver extends CoreDriver
         return $element->getTagName();
     }
 
+    /**
+     * @see https://www.w3.org/TR/webdriver1/#get-element-text
+     */
     public function getText(
         #[Language('xpath')]
         $xpath
-    ) {
+    ): string {
         $element = $this->findElement($xpath);
-        $text = $element->getText();
 
-        $text = (string) str_replace(["\r", "\r\n", "\n"], ' ', $text);
-
-        return $text;
+        return $element->getText();
     }
 
     /**
@@ -648,8 +693,8 @@ class WebDriver extends CoreDriver
     }
 
     /**
-     * @param string          $xpath
-     * @param string|string[] $value
+     * @param string               $xpath
+     * @param string|bool|string[] $value
      *
      * @return void
      *
@@ -669,6 +714,10 @@ class WebDriver extends CoreDriver
         $elementName = strtolower($element->getTagName());
 
         if ('select' === $elementName) {
+            if (!is_string($value) && !is_array($value)) {
+                throw new DriverException(sprintf('Impossible to set value an element with XPath "%s" as the value is not a string or an array.', $xpath));
+            }
+
             $select = new WebDriverSelect($element);
 
             if (is_array($value)) {
@@ -701,6 +750,10 @@ class WebDriver extends CoreDriver
             }
 
             if ('radio' === $elementType) {
+                if (!is_string($value)) {
+                    throw new DriverException('Radio button value must be a string.');
+                }
+
                 $radios = new WebDriverRadios($element);
                 $radios->selectByValue($value);
 
@@ -708,6 +761,10 @@ class WebDriver extends CoreDriver
             }
 
             if ('file' === $elementType) {
+                if (!is_string($value)) {
+                    throw new DriverException('File name must be a string.');
+                }
+
                 $this->attachFile($xpath, $value);
 
                 return;
@@ -729,6 +786,20 @@ class WebDriver extends CoreDriver
 
                 return;
             }
+
+            if (
+                'text' === $elementType
+                && !is_string($value)
+            ) {
+                throw new DriverException(sprintf('Impossible to set value with type %s an element with XPath "%s" of input[type=text]', gettype($value), $xpath));
+            }
+        }
+
+        if (
+            'textarea' === $elementName
+            && !is_string($value)
+        ) {
+            throw new DriverException(sprintf('Impossible to set value with type %s an element with XPath "%s" of textarea', gettype($value), $xpath));
         }
 
         $value = (string) $value;
@@ -1186,7 +1257,7 @@ EOF;
 
         try {
             $this->webDriver->executeAsyncScript($script);
-        } catch (ScriptTimeoutException $e) {
+        } catch (ScriptTimeoutException|TimeoutException $e) {
             throw new DriverException($e->getMessage(), $e->getCode(), $e);
         }
     }

@@ -30,7 +30,7 @@ class WindowNameTest extends TestCase
         $page->clickLink('Popup #1');
         $session->switchToWindow('popup_1');
         $el = $webAssert->elementExists('css', '#text');
-        $this->assertSame('Popup#1 div text', $el->getText());
+        $this->assertSame('Popup#1 div text', trim($el->getText()));
 
         $session->executeScript('window.close();');
 
@@ -39,7 +39,7 @@ class WindowNameTest extends TestCase
         $page->clickLink('Popup #1');
         $session->switchToWindow('popup_1');
         $el = $webAssert->elementExists('css', '#text');
-        $this->assertSame('Popup#1 div text', $el->getText());
+        $this->assertSame('Popup#1 div text', trim($el->getText()));
     }
 
     public function testSwitchWindowAfterReset(): void
@@ -53,13 +53,13 @@ class WindowNameTest extends TestCase
         $page->clickLink('Popup #1');
         $session->switchToWindow('popup_1');
         $el = $webAssert->elementExists('css', '#text');
-        $this->assertSame('Popup#1 div text', $el->getText());
+        $this->assertSame('Popup#1 div text', trim($el->getText()));
 
         $session->restart();
         $session->visit($this->pathTo('/window.html'));
         $page->clickLink('Popup #2');
         $session->switchToWindow('popup_2');
         $el = $webAssert->elementExists('css', '#text');
-        $this->assertSame('Popup#2 div text', $el->getText());
+        $this->assertSame('Popup#2 div text', trim($el->getText()));
     }
 }

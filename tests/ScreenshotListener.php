@@ -59,6 +59,10 @@ class ScreenshotListener implements TestListener
 
     private function makeScreenshot(Test $test): void
     {
+        if ('safari' === getenv('BROWSER_NAME')) {
+            return;
+        }
+
         try {
             /** @var Session $session */
             $session = \Closure::bind(function () {
