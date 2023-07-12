@@ -191,7 +191,7 @@ class WebDriver extends CoreDriver
         return $this->desiredCapabilities;
     }
 
-    public function getWebDriver(): ?WebDriver
+    public function getWebDriver(): ?RemoteWebDriver
     {
         return $this->webDriver;
     }
