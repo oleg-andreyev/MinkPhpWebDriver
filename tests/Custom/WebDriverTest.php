@@ -7,7 +7,7 @@ use OAndreyev\Mink\Driver\WebDriver;
 
 class WebDriverTest extends TestCase
 {
-    public function testGetWebDriverSessionId()
+    public function testGetWebDriverSessionId(): void
     {
         $session = $this->getSession();
         $session->start();

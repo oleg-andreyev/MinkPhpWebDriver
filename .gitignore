@@ -7,5 +7,12 @@ geckodriver/
 msedgedriver/
 logs/
 vendor-bin/**/vendor/
-.idea/
+bin/
+vendor/
+composer.lock
+!bin/browser
+!bin/start_driver.sh
+!bin/start_webserver.sh
 .phpunit.result.cache
+.php-cs-fixer.cache
+.idea/

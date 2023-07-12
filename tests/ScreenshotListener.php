@@ -1,16 +1,17 @@
-<?php declare(strict_types = 1);
+<?php
+
+declare(strict_types=1);
 
 namespace OAndreyev\Mink\Tests\Driver;
 
 use Behat\Mink\Session;
 use Behat\Mink\Tests\Driver\TestCase;
-use Behat\Mink\Tests\Driver\Util\TestCaseInvalidStateException;
+use OAndreyev\Mink\Driver\WebDriver;
 use PHPUnit\Framework\AssertionFailedError;
 use PHPUnit\Framework\Test;
 use PHPUnit\Framework\TestListener;
 use PHPUnit\Framework\TestSuite;
 use PHPUnit\Framework\Warning;
-use PHPUnit\Runner\AfterTestFailureHook;
 
 class ScreenshotListener implements TestListener
 {
@@ -65,8 +66,10 @@ class ScreenshotListener implements TestListener
         try {
             /** @var Session $session */
             $session = \Closure::bind(function () {
-                /** @var TestCase $this */
-                return $this->getSession();
+                /** @var TestCase $that */
+                $that = $this;
+
+                return $that->getSession();
             }, $test, $test)();
         } catch (\Throwable $e) {
             return;
@@ -77,6 +80,9 @@ class ScreenshotListener implements TestListener
         }
 
         $filename = str_replace(['#', ' ', '.', ',', '"', '\''], '_', $test->getName());
-        $session->getDriver()->getScreenshot(getcwd() . '/logs/' . $filename . '.png');
+
+        /** @var WebDriver $driver */
+        $driver = $session->getDriver();
+        $driver->getScreenshot(getcwd().'/logs/'.$filename.'.png');
     }
 }

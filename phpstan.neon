@@ -1,0 +1,10 @@
+parameters:
+    level: 6
+    paths:
+        - src
+        - tests
+    ignoreErrors:
+        - '#Call to an undefined method PHPUnit\\Framework\\Test::getName\(\)#'
+    bootstrapFiles:
+        - vendor/autoload.php
+        - vendor-bin/phpunit/vendor/autoload.php
