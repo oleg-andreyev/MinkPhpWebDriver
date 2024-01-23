@@ -1202,7 +1202,7 @@ EOF;
 
     public function wait($timeout, $condition)
     {
-        $seconds = (int) ($timeout / 1000.0);
+        $seconds = $timeout / 1000.0;
         $wait = $this->webDriver->wait($seconds);
 
         if (is_string($condition)) {
