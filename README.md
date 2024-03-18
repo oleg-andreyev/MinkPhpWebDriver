@@ -29,7 +29,7 @@ BROWSER_NAME=chrome ./bin/phpunit
 
 This will download the latest driver for specified browser and will execute phpunit
 
-## Running GitHub Acton locally
+## Running GitHub Action locally
 Follow https://github.com/shivammathur/setup-php#local-testing-setup
 
 ## Copyright
